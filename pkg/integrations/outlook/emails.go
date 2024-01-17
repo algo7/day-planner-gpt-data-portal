@@ -51,14 +51,6 @@ func GetEmails() ([]Email, error) {
 
 	graphClient := msgraphsdk.NewGraphServiceClient(adapter)
 
-	// Use the graphClient to make API calls
-	user, err := graphClient.Me().Get(context.Background(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("Error getting user: %v", err)
-	}
-
-	log.Printf("User: %v", user)
-
 	// Get the current time
 	now := time.Now()
 
