@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	abstractions "github.com/microsoft/kiota-abstractions-go"
@@ -13,7 +14,8 @@ import (
 	graphusers "github.com/microsoftgraph/msgraph-sdk-go/users"
 )
 
-type OutlookEmail struct {
+// Email is a struct to hold the email data
+type Email struct {
 	Subject          string `json:"subject"`
 	Body             string `json:"body"`
 	Sender           string `json:"sender"`
@@ -34,7 +36,9 @@ func (c *CustomAuthenticationProvider) AuthenticateRequest(ctx context.Context, 
 }
 
 // GetEmails calls the Microsoft Graph API to get the user's emails.
-func GetEmails(accessToken string) error {
+func GetEmails() ([]Email, error) {
+
+	accessToken := os.Getenv("OAUTH_TOKEN")
 
 	// Create an instance of CustomAuthenticationProvider with the access token
 	customAuthProvider := &CustomAuthenticationProvider{accessToken: accessToken}
@@ -42,7 +46,7 @@ func GetEmails(accessToken string) error {
 	// Create a new Graph service client with the custom authentication provider
 	adapter, err := msgraphsdk.NewGraphRequestAdapter(customAuthProvider)
 	if err != nil {
-		log.Fatalf("Could not create request adapter: %v", err)
+		return nil, fmt.Errorf("Could not create request adapter: %v", err)
 	}
 
 	graphClient := msgraphsdk.NewGraphServiceClient(adapter)
@@ -50,7 +54,7 @@ func GetEmails(accessToken string) error {
 	// Use the graphClient to make API calls
 	user, err := graphClient.Me().Get(context.Background(), nil)
 	if err != nil {
-		log.Fatalf("Error getting user: %v", err)
+		return nil, fmt.Errorf("Error getting user: %v", err)
 	}
 
 	log.Printf("User: %v", user)
@@ -68,7 +72,7 @@ func GetEmails(accessToken string) error {
 	requestFilter := fmt.Sprintf("singleValueExtendedProperties/Any(ep: ep/id eq 'String 0x001A' and contains(ep/value, 'IPM.Note')) and receivedDateTime ge %s ", twoDaysAgoStr)
 
 	requestParameters := &graphusers.ItemMessagesRequestBuilderGetQueryParameters{
-		Select:  []string{"sender", "subject", "receivedDateTime"},
+		Select:  []string{"sender", "subject", "bodyPreview", "receivedDateTime"},
 		Orderby: []string{"receivedDateTime DESC"},
 		Filter:  &requestFilter,
 	}
@@ -79,23 +83,38 @@ func GetEmails(accessToken string) error {
 	messages, err := graphClient.Me().Messages().Get(context.Background(), configuration)
 
 	if err != nil {
-		return fmt.Errorf("Error getting messages: %w", err)
+		return nil, fmt.Errorf("Error getting messages: %w", err)
 	}
 
 	// Initialize iterator
 	pageIterator, _ := msgraphcore.NewPageIterator[*models.Message](messages, graphClient.GetAdapter(), models.CreateMessageCollectionResponseFromDiscriminatorValue)
 
+	OutlookEmails := []Email{}
+
 	// Iterate over all pages
 	err = pageIterator.Iterate(context.Background(), func(message *models.Message) bool {
-		fmt.Printf("%s\n", *message.GetSubject())
+
+		OutlookEmails = append(OutlookEmails, Email{
+			Subject: *message.GetSubject(),
+			Body:    *message.GetBodyPreview(),
+			Sender:  *message.GetSender().GetEmailAddress().GetAddress(),
+		})
+
 		// Return true to continue the iteration
 		return true
 	})
 
 	// Check for errors
 	if err != nil {
-		return fmt.Errorf("Error iterating over messages: %w", err)
+		return nil, fmt.Errorf("Error iterating over messages: %w", err)
 	}
 
-	return nil
+	return OutlookEmails, nil
+}
+
+func init() {
+	token := os.Getenv("OAUTH_TOKEN")
+	if token == "" {
+		log.Fatal("OAUTH_TOKEN is not set")
+	}
 }
