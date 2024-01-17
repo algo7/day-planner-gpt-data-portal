@@ -59,7 +59,6 @@ func GetEmails() ([]Email, error) {
 
 	// Format the time in ISO 8601 format
 	twoDaysAgoStr := twoDaysAgo.Format("2006-01-02T15:04:05Z")
-	fmt.Println(twoDaysAgoStr)
 
 	requestFilter := fmt.Sprintf("singleValueExtendedProperties/Any(ep: ep/id eq 'String 0x001A' and contains(ep/value, 'IPM.Note')) and receivedDateTime ge %s ", twoDaysAgoStr)
 
@@ -87,9 +86,10 @@ func GetEmails() ([]Email, error) {
 	err = pageIterator.Iterate(context.Background(), func(message *models.Message) bool {
 
 		OutlookEmails = append(OutlookEmails, Email{
-			Subject: *message.GetSubject(),
-			Body:    *message.GetBodyPreview(),
-			Sender:  *message.GetSender().GetEmailAddress().GetAddress(),
+			Subject:          *message.GetSubject(),
+			Body:             *message.GetBodyPreview(),
+			Sender:           *message.GetSender().GetEmailAddress().GetAddress(),
+			RecievedDateTime: message.GetReceivedDateTime().Format("2006-01-02T15:04:05Z"),
 		})
 
 		// Return true to continue the iteration
