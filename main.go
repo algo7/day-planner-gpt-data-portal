@@ -1,9 +1,15 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"log"
+
+	"github.com/algo7/day-planner-gpt-data-portal/api/routes"
+	"github.com/gofiber/fiber/v2"
+)
 
 func main() {
 
+	// App config.
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
 		StrictRouting: true,
@@ -11,6 +17,13 @@ func main() {
 		AppName:       "Day Planner GPT Data Portal",
 	})
 
-	app.Listen(":3000")
+	// Load the routes.
+	routes.HomeRoutes(app)
 
+	// Start the server.
+	err := app.Listen(":3000")
+
+	if err != nil {
+		log.Fatalf("Error Starting the Server: %v", err)
+	}
 }
