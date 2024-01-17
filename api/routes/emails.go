@@ -8,4 +8,5 @@ import (
 // EmailsRoutes is the route handler for the emails API.
 func EmailsRoutes(app *fiber.App) {
 	app.Get("/outlook", controllers.GetOutlookEmails)
+	app.Get("/gmail", controllers.GetGmailEmails)
 }
