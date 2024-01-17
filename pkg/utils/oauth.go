@@ -47,11 +47,13 @@ func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 }
 
 // GetTokenFromWeb prints the URL to visit to authorize the application
-func GetTokenFromWeb(config *oauth2.Config) {
+func GetTokenFromWeb(config *oauth2.Config) string {
 
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Go to the following link in your browser then type the "+
 		"authorization code: \n%v\n", authURL)
+
+	return authURL
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -66,8 +68,8 @@ func getClient(config *oauth2.Config, tokenFileName string) *http.Client {
 	return config.Client(context.Background(), tok)
 }
 
-// handleReturn handles the redirect from the OAuth2 provider
-func handleReturn(config *oauth2.Config, authCode string, fileName string) (*oauth2.Token, error) {
+// ExchangeCodeForToken handles the redirect from the OAuth2 provider and exchanges the code for a token
+func ExchangeCodeForToken(config *oauth2.Config, authCode string, fileName string) (*oauth2.Token, error) {
 
 	// Converts authorization code into a token
 	tok, err := config.Exchange(context.TODO(), authCode)
