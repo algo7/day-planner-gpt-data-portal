@@ -3,10 +3,9 @@ package outlook
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
 	"time"
 
+	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	abstractions "github.com/microsoft/kiota-abstractions-go"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
 	msgraphcore "github.com/microsoftgraph/msgraph-sdk-go-core"
@@ -38,10 +37,13 @@ func (c *CustomAuthenticationProvider) AuthenticateRequest(ctx context.Context, 
 // GetEmails calls the Microsoft Graph API to get the user's emails.
 func GetEmails() ([]Email, error) {
 
-	accessToken := os.Getenv("OAUTH_TOKEN")
+	accessToken, err := utils.TokenFromFile("outlook_token.json")
+	if err != nil {
+		return nil, fmt.Errorf("Error getting token from file: %w", err)
+	}
 
 	// Create an instance of CustomAuthenticationProvider with the access token
-	customAuthProvider := &CustomAuthenticationProvider{accessToken: accessToken}
+	customAuthProvider := &CustomAuthenticationProvider{accessToken: accessToken.AccessToken}
 
 	// Create a new Graph service client with the custom authentication provider
 	adapter, err := msgraphsdk.NewGraphRequestAdapter(customAuthProvider)
@@ -102,11 +104,4 @@ func GetEmails() ([]Email, error) {
 	}
 
 	return OutlookEmails, nil
-}
-
-func init() {
-	token := os.Getenv("OAUTH_TOKEN")
-	if token == "" {
-		log.Fatal("OAUTH_TOKEN is not set")
-	}
 }

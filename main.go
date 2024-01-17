@@ -20,6 +20,7 @@ func main() {
 	// Load the routes.
 	routes.HomeRoutes(app)
 	routes.EmailsRoutes(app)
+	routes.AuthRoutes(app)
 
 	// Start the server.
 	err := app.Listen(":3000")

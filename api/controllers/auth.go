@@ -37,7 +37,7 @@ func GetOauthRedirect(c *fiber.Ctx) error {
 	}
 
 	// Exchange the code for an access token here
-	utils.ExchangeCodeForToken(config, code, "outlook_token.json")
+	utils.ExchangeCodeForToken(config, code, "outlook")
 
 	return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 }
