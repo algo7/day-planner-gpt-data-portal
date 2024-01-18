@@ -1,6 +1,9 @@
 package redisclient
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"os"
 
 	"github.com/redis/go-redis/v9"
@@ -26,4 +29,20 @@ func getRedisHostAddress() string {
 	}
 
 	return redisHost
+}
+
+// RedisConnectionCheck checks if the redis server is up and running
+func RedisConnectionCheck() error {
+
+	ctx := context.Background()
+
+	// Ping the redis server to check if it is up
+	resp, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		return fmt.Errorf("redis server is not running: %w", err)
+	}
+
+	log.Println("Redis connection established", resp)
+
+	return nil
 }
