@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error Setting the initial password in Redis: %v", err)
 	}
-	log.Printf("Initial Password: %s", apiKey)
+	log.Printf("Initial Password: %s This will expire once used.", apiKey)
 
 	// Initialize standard Go html template engine
 	engine := html.New("./api/assets", ".html")
