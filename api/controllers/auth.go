@@ -136,5 +136,4 @@ func PostAPIKey(c *fiber.Ctx) error {
 
 	// Return the API key.
 	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
-
 }
