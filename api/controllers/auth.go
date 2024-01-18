@@ -93,3 +93,16 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 	return c.RedirectToRoute("google", nil, 302)
 }
+
+// GetAPIKey returns a new API key
+func GetAPIKey(c *fiber.Ctx) error {
+
+	// Generate an API key.
+	apiKey, err := utils.GenerateAPIKey()
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error generating API key: %v", err))
+	}
+
+	// Return the API key.
+	return c.SendString(apiKey)
+}
