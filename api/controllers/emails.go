@@ -7,6 +7,7 @@ import (
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations/outlook"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/redis/go-redis/v9"
 )
 
 // GetOutlookEmails returns the user's outlook emails.
@@ -16,10 +17,16 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 
 	if err != nil {
 
-		// Redis related errors
-		if strings.Contains(err.Error(), "redis") {
+		// Redis related errors that are not due to the token key not being found
+		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
 			log.Errorf("Error getting emails due to redis connection: %v", err)
 			return c.SendString("Unable to get emails due to token retrieval error. Please check the server logs.")
+		}
+
+		// Redis related errors that are due to the token key not being found
+		if strings.Contains(err.Error(), redis.Nil.Error()) {
+			log.Info("Token not found in redis")
+			return c.RedirectToRoute("outlook_auth", nil, 302)
 		}
 
 		// Non-redis related errors
@@ -35,10 +42,16 @@ func GetGmailEmails(c *fiber.Ctx) error {
 
 	if err != nil {
 
-		// Redis related errors
-		if strings.Contains(err.Error(), "redis") {
+		// Redis related errors that are not due to the token key not being found
+		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
 			log.Errorf("Error getting emails due to redis connection: %v", err)
 			return c.SendString("Unable to get emails due to token retrieval error. Please check the server logs.")
+		}
+
+		// Redis related errors that are due to the token key not being found
+		if strings.Contains(err.Error(), redis.Nil.Error()) {
+			log.Info("Token not found in redis")
+			return c.RedirectToRoute("google_auth", nil, 302)
 		}
 
 		// Non-redis related errors
