@@ -9,6 +9,7 @@ import (
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/template/html/v2"
 )
@@ -54,6 +55,9 @@ func main() {
 		KeyLookup: "header:X-API-KEY",
 		Validator: middlewares.ValidateAPIKey,
 	}))
+
+	// Healthcheck middleware /livez and /readyz routes
+	app.Use(healthcheck.New())
 
 	// Load the routes.
 	routes.HomeRoutes(app)
