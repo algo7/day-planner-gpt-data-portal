@@ -8,12 +8,23 @@ import (
 	"github.com/algo7/day-planner-gpt-data-portal/api/routes"
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/template/html/v2"
 )
 
+// @title Fiber Example API
+// @version 1.0
+// @description day-planner-gpt-data-portal
+// @termsOfService http://swagger.io/terms/
+// @contact.name Algo7
+// @contact.email tools@algo7.tools
+// @license.name GNU GENERAL PUBLIC LICENSE Version 3
+// @license.url https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE
+// @host localhost:3000
+// @BasePath /
 func main() {
 
 	// Check Redis connection.
@@ -58,6 +69,10 @@ func main() {
 
 	// Healthcheck middleware /livez and /readyz routes
 	app.Use(healthcheck.New())
+
+	app.Use(swagger.New(swagger.Config{
+		FilePath: "./docs/swagger.json",
+	}))
 
 	// Load the routes.
 	routes.HomeRoutes(app)

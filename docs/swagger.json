@@ -1,0 +1,20 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "day-planner-gpt-data-portal",
+        "title": "Fiber Example API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Algo7",
+            "email": "tools@algo7.tools"
+        },
+        "license": {
+            "name": "GNU GENERAL PUBLIC LICENSE Version 3",
+            "url": "https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {}
+}
