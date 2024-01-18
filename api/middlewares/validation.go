@@ -26,15 +26,18 @@ func ValidateAPIKey(c *fiber.Ctx, key string) (bool, error) {
 	return true, nil
 }
 
-// AuthFilter is checks if the request is the protected URL
+// AuthFilter allows the request to pass through if the request is not one of the protected URLs.
+// False means the request will be blocked. True means the request will be allowed.
 func AuthFilter(c *fiber.Ctx) bool {
 
 	// Check if the request is one of the protected URLs
 	for _, url := range protectedURL {
 		if c.Path() == url {
-			return true
+			// Do not allow the request to pass through directly
+			return false
 		}
 	}
 
-	return false
+	// Otherwise, allow the request to pass through directly
+	return true
 }
