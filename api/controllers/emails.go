@@ -22,7 +22,7 @@ func GetGmailEmails(c *fiber.Ctx) error {
 	emails, err := gmail.GetEmails()
 	if err != nil {
 		log.Errorf("Error getting emails: %v", err)
-		return c.RedirectToRoute("google_oauth", nil, 302)
+		return c.RedirectToRoute("google_auth", nil, 302)
 	}
 	return c.JSON(emails)
 }
