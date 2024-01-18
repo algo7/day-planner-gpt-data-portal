@@ -9,6 +9,7 @@ import (
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 )
@@ -111,6 +112,9 @@ func PostAPIKey(c *fiber.Ctx) error {
 	// Get the initial API key from Redis
 	initialAPIKey, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
 	if err != nil {
+		if err == redis.Nil {
+			return c.SendString("Initial password has expired. Please restart the server to generate a new password.")
+		}
 		return c.SendString(fmt.Sprintf("Error getting initial password: %v", err))
 	}
 
