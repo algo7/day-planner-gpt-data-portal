@@ -12,22 +12,22 @@ import (
 var protectedURL = []string{"/outlook", "/google"}
 
 // ValidateAPIKey validates the API key
-func ValidateAPIKey(c *fiber.Ctx, key string) (bool, error) {
+func ValidateAPIKey(c *fiber.Ctx, apiKey string) (bool, error) {
 	// Get the API key from Redis
-	storedKey, err := redisclient.Rdb.Get(context.Background(), "apiKey").Result()
+	storedKey, err := redisclient.Rdb.Get(context.Background(), fmt.Sprintf("apikey_%s", apiKey)).Result()
 	if err != nil {
 		return false, fmt.Errorf("Error getting the API key from Redis: %v", err)
 	}
 
 	// Compare the API key from Redis with the API key from the request
-	if key != storedKey {
+	if apiKey != storedKey {
 		return false, nil
 	}
 
 	// If the key is valid, refresh its TTL to 7 days
 	ttl := 7 * 24 * time.Hour
 
-	err = redisclient.Rdb.Expire(context.Background(), "apiKey", ttl).Err()
+	err = redisclient.Rdb.Expire(context.Background(), fmt.Sprintf("apikey_%s", apiKey), ttl).Err()
 	if err != nil {
 		return false, fmt.Errorf("error refreshing API key TTL: %v", err)
 	}
