@@ -10,6 +10,7 @@ import (
 	"time"
 
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2"
 )
 
@@ -96,6 +97,28 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey strin
 	}
 
 	return tok, nil
+}
+
+// RetrieveToken retrieves the OAuth token from redis.
+func RetrieveToken(redisKey string) (*oauth2.Token, error) {
+
+	// Retrieves the token from redis
+	tokenJSON, err := redisclient.Rdb.Get(context.Background(), redisKey).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("Token does not exist in redis: %w", err)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Unable to retrieve token from redis: %w", err)
+	}
+
+	// Unmarshals the token
+	var tok oauth2.Token
+	err = json.Unmarshal([]byte(tokenJSON), &tok)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to unmarshal token: %w", err)
+	}
+
+	return &tok, nil
 }
 
 // TokenFromFile retrieves a Token from a given file path.
