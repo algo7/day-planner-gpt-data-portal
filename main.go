@@ -8,6 +8,7 @@ import (
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 )
 
 func main() {
@@ -30,12 +31,19 @@ func main() {
 	}
 	log.Printf("Initial Password: %s", apiKey)
 
+	// Initialize standard Go html template engine
+	engine := html.New("./api/assets", ".html")
+	engine.Layout("embed") // Optional. Default: "embed"
+	engine.Delims("{{", "}}")
+	engine.Reload(false)
+
 	// App config.
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
 		StrictRouting: true,
 		ServerHeader:  "Day Planner GPT Data Portal",
 		AppName:       "Day Planner GPT Data Portal",
+		Views:         engine,
 	})
 
 	// Load the routes.

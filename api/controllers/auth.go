@@ -99,22 +99,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 
 // GetAPIKey returns a page to get the initial API key
 func GetAPIKey(c *fiber.Ctx) error {
-	return c.SendString(`
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<title>Get API Key</title>
-	</head>
-	<body>
-		<h2>Enter Initial Password</h2>
-		<form action="/apikey" method="post">
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password">
-			<input type="submit" value="Submit">
-		</form>
-	</body>
-	</html>
-`)
+	return c.Render("apikey_form", fiber.Map{})
 }
 
 // PostAPIKey returns a new API key
