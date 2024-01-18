@@ -129,7 +129,7 @@ func PostAPIKey(c *fiber.Ctx) error {
 	ttl := 7 * 24 * time.Hour // 7 days in hours
 
 	// Save the key in the database
-	err = redisclient.Rdb.Set(context.Background(), apiKey, apiKey, ttl).Err()
+	err = redisclient.Rdb.Set(context.Background(), "api_key", apiKey, ttl).Err()
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error Generating API key: %v", err))
 	}
