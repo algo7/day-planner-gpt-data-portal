@@ -101,6 +101,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 
 // GetAPIKey returns a page to get the initial API key
 func GetAPIKey(c *fiber.Ctx) error {
+	// Check if the initial password exists in Redis
 	err := redisclient.Rdb.Get(context.Background(), "initial_password").Err()
 	if err != nil {
 		// If the initial password has expired, redirect to the home page.
