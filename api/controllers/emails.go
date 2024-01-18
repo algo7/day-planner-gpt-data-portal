@@ -12,7 +12,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 	emails, err := outlook.GetEmails()
 	if err != nil {
 		log.Errorf("Error getting emails: %v", err)
-		return c.RedirectToRoute("outlook_oauth", nil, 302)
+		return c.RedirectToRoute("outlook_auth", nil, 302)
 	}
 	return c.JSON(emails)
 }
