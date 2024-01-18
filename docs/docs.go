@@ -23,6 +23,29 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/": {
+            "get": {
+                "description": "Returns the home page of the application.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Pages"
+                ],
+                "summary": "Home Page",
+                "responses": {
+                    "200": {
+                        "description": "Hello, World!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/apikey": {
             "get": {
                 "description": "Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.",
@@ -100,6 +123,82 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Error getting initial password or generating API key",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/emails/gmail": {
+            "get": {
+                "description": "Retrieves emails from the user's Gmail account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Gmail Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Gmail emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gmail.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Google authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/emails/outlook": {
+            "get": {
+                "description": "Retrieves emails from the user's Outlook account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Outlook Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Outlook emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/outlook.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
                         "schema": {
                             "type": "string"
                         }
@@ -265,6 +364,42 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "gmail.Email": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "recievedDateTime": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "outlook.Email": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "recievedDateTime": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
                 }
             }
         }

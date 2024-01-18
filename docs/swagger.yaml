@@ -1,4 +1,27 @@
 basePath: /
+definitions:
+  gmail.Email:
+    properties:
+      body:
+        type: string
+      recievedDateTime:
+        type: string
+      sender:
+        type: string
+      subject:
+        type: string
+    type: object
+  outlook.Email:
+    properties:
+      body:
+        type: string
+      recievedDateTime:
+        type: string
+      sender:
+        type: string
+      subject:
+        type: string
+    type: object
 host: localhost:3000
 info:
   contact:
@@ -12,6 +35,21 @@ info:
   title: Fiber Example API
   version: "1.0"
 paths:
+  /:
+    get:
+      consumes:
+      - '*/*'
+      description: Returns the home page of the application.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Hello, World!
+          schema:
+            type: string
+      summary: Home Page
+      tags:
+      - Pages
   /auth/apikey:
     get:
       consumes:
@@ -70,6 +108,60 @@ paths:
       summary: Generate API Key
       tags:
       - Authentication
+  /emails/gmail:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves emails from the user's Gmail account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of Gmail emails
+          schema:
+            items:
+              $ref: '#/definitions/gmail.Email'
+            type: array
+        "302":
+          description: Redirect to Google authentication if the access token is missing
+            or invalid
+          schema:
+            type: string
+        "500":
+          description: Unable to retrieve emails due to server error or token retrieval
+            issue
+          schema:
+            type: string
+      summary: Get Gmail Emails
+      tags:
+      - Emails
+  /emails/outlook:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves emails from the user's Outlook account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of Outlook emails
+          schema:
+            items:
+              $ref: '#/definitions/outlook.Email'
+            type: array
+        "302":
+          description: Redirect to Outlook authentication if the access token is missing
+            or invalid
+          schema:
+            type: string
+        "500":
+          description: Unable to retrieve emails due to server error or token retrieval
+            issue
+          schema:
+            type: string
+      summary: Get Outlook Emails
+      tags:
+      - Emails
   /google/auth:
     get:
       consumes:
