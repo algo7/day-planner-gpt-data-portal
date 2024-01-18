@@ -25,7 +25,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 
 		// Redis related errors that are due to the token key not being found
 		if strings.Contains(err.Error(), redis.Nil.Error()) {
-			log.Println("Token not found in redis")
+			log.Println("Access token not found in redis")
 			return c.RedirectToRoute("outlook_auth", nil, 302)
 		}
 
