@@ -37,7 +37,7 @@ func (c *CustomAuthenticationProvider) AuthenticateRequest(ctx context.Context, 
 // GetEmails calls the Microsoft Graph API to get the user's emails.
 func GetEmails() ([]Email, error) {
 
-	accessToken, err := utils.TokenFromFile("outlook_token.json")
+	accessToken, err := utils.RetrieveToken("outlook")
 	if err != nil {
 		return nil, fmt.Errorf("Error getting token from file: %w", err)
 	}
