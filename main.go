@@ -4,10 +4,12 @@ import (
 	"context"
 	"log"
 
+	"github.com/algo7/day-planner-gpt-data-portal/api/middlewares"
 	"github.com/algo7/day-planner-gpt-data-portal/api/routes"
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/template/html/v2"
 )
 
@@ -45,6 +47,13 @@ func main() {
 		AppName:       "Day Planner GPT Data Portal",
 		Views:         engine,
 	})
+
+	// Auth middleware
+	app.Use(keyauth.New(keyauth.Config{
+		Next:      middlewares.AuthFilter,
+		KeyLookup: "header:X-API-KEY",
+		Validator: middlewares.ValidateAPIKey,
+	}))
 
 	// Load the routes.
 	routes.HomeRoutes(app)
