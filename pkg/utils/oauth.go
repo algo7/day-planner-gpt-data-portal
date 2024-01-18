@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"golang.org/x/oauth2"
 )
 
@@ -70,7 +72,7 @@ func GetClient(config *oauth2.Config, tokenFileName string) (*http.Client, error
 }
 
 // ExchangeCodeForToken handles the redirect from the OAuth2 provider and exchanges the code for a token
-func ExchangeCodeForToken(config *oauth2.Config, authCode string, fileName string) (*oauth2.Token, error) {
+func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey string) (*oauth2.Token, error) {
 
 	// Converts authorization code into a token
 	tok, err := config.Exchange(context.TODO(), authCode)
@@ -78,10 +80,19 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, fileName strin
 		return nil, fmt.Errorf("Unable to retrieve token from web: %w", err)
 	}
 
-	// Saves token to a file
-	err = saveToken(fmt.Sprintf("%s_token.json", fileName), tok)
+	// Marshals the token into a JSON object
+	tokenJSON, err := json.Marshal(tok)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to save token: %w", err)
+		return nil, fmt.Errorf("Unable to marshal token: %w", err)
+	}
+
+	// Calculates the time to live for the token
+	ttl := tok.Expiry.Sub(time.Now())
+
+	// Saves the token to redis
+	err = redisclient.Rdb.Set(context.Background(), redisKey, tokenJSON, ttl).Err()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to save token to redis: %w", err)
 	}
 
 	return tok, nil

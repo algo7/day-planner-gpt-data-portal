@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	rdb = redis.NewClient(&redis.Options{
+	// Rdb is the redis client
+	Rdb = redis.NewClient(&redis.Options{
 		Addr:     getRedisHostAddress(), // use the given Addr or default Addr
 		Password: "",                    // no password set
 		DB:       0,                     // use default DB
@@ -37,7 +38,7 @@ func RedisConnectionCheck() error {
 	ctx := context.Background()
 
 	// Ping the redis server to check if it is up
-	resp, err := rdb.Ping(ctx).Result()
+	resp, err := Rdb.Ping(ctx).Result()
 	if err != nil {
 		return fmt.Errorf("redis server is not running: %w", err)
 	}
