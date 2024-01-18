@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var protectedURL = []string{"/apikey"}
+var protectedURL = []string{"/outlook", "/google"}
 
 // ValidateAPIKey validates the API key
 func ValidateAPIKey(c *fiber.Ctx, key string) (bool, error) {
