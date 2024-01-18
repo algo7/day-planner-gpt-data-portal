@@ -35,7 +35,7 @@ func GetEmails() ([]Email, error) {
 		return nil, fmt.Errorf("Unable to parse client secret file to config: %w", err)
 	}
 
-	client, err := utils.GetClient(config, "google_token.json")
+	client, err := utils.GetClient(config, "google")
 	if err != nil {
 		return nil, fmt.Errorf("unable to get OAuth client: %w", err)
 	}
