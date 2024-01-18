@@ -10,6 +10,7 @@ import (
 
 func main() {
 
+	// Check Redis connection.
 	err := redisclient.RedisConnectionCheck()
 	if err != nil {
 		log.Fatalf("Error Connecting to Redis Server: %v", err)
