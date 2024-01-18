@@ -39,7 +39,7 @@ func GetEmails() ([]Email, error) {
 
 	accessToken, err := utils.RetrieveToken("outlook")
 	if err != nil {
-		return nil, fmt.Errorf("Error getting token from file: %w", err)
+		return nil, fmt.Errorf("Error getting token from redis: %w", err)
 	}
 
 	// Create an instance of CustomAuthenticationProvider with the access token

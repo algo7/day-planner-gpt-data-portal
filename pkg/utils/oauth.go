@@ -67,7 +67,7 @@ func GetClient(config *oauth2.Config, tokenKey string) (*http.Client, error) {
 	// time.
 	tok, err := RetrieveToken(tokenKey)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get token from file: %w", err)
+		return nil, fmt.Errorf("unable to get token from redis: %w", err)
 	}
 	return config.Client(context.Background(), tok), nil
 }
