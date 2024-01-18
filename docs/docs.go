@@ -15,7 +15,7 @@ const docTemplate = `{
             "email": "tools@algo7.tools"
         },
         "license": {
-            "name": "GNU GENERAL PUBLIC LICENSE Version 3",
+            "name": "The GNU General Public License v3.0",
             "url": "https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE"
         },
         "version": "{{.Version}}"
@@ -46,7 +46,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/apikey": {
+        "/apikey": {
             "get": {
                 "description": "Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.",
                 "consumes": [
@@ -130,7 +130,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/emails/gmail": {
+        "/google": {
             "get": {
                 "description": "Retrieves emails from the user's Gmail account.",
                 "consumes": [
@@ -155,44 +155,6 @@ const docTemplate = `{
                     },
                     "302": {
                         "description": "Redirect to Google authentication if the access token is missing or invalid",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/emails/outlook": {
-            "get": {
-                "description": "Retrieves emails from the user's Outlook account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Emails"
-                ],
-                "summary": "Get Outlook Emails",
-                "responses": {
-                    "200": {
-                        "description": "List of Outlook emails",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/outlook.Email"
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
                         "schema": {
                             "type": "string"
                         }
@@ -287,6 +249,44 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Unable to read client secret file or parse it to config",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/outlook": {
+            "get": {
+                "description": "Retrieves emails from the user's Outlook account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Outlook Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Outlook emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/outlook.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
                         "schema": {
                             "type": "string"
                         }
@@ -409,7 +409,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "NONE",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Fiber Example API",

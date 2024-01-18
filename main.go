@@ -21,9 +21,9 @@ import (
 // @termsOfService http://swagger.io/terms/
 // @contact.name Algo7
 // @contact.email tools@algo7.tools
-// @license.name GNU GENERAL PUBLIC LICENSE Version 3
+// @license.name The GNU General Public License v3.0
 // @license.url https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE
-// @host localhost:3000
+// @host NONE
 // @BasePath /
 func main() {
 

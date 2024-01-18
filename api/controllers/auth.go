@@ -146,7 +146,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{} "Render the API key form page"
 // @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
 // @Failure 500 {string} string "Error getting initial password from Redis"
-// @Router /auth/apikey [get]
+// @Router /apikey [get]
 func GetAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password exists in Redis
@@ -174,7 +174,7 @@ func GetAPIKey(c *fiber.Ctx) error {
 // @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
 // @Failure 400 {string} string "Incorrect password"
 // @Failure 500 {string} string "Error getting initial password or generating API key"
-// @Router /auth/apikey [post]
+// @Router /apikey [post]
 func PostAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password is still in Redis

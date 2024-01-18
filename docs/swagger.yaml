@@ -22,14 +22,14 @@ definitions:
       subject:
         type: string
     type: object
-host: localhost:3000
+host: NONE
 info:
   contact:
     email: tools@algo7.tools
     name: Algo7
   description: day-planner-gpt-data-portal
   license:
-    name: GNU GENERAL PUBLIC LICENSE Version 3
+    name: The GNU General Public License v3.0
     url: https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE
   termsOfService: http://swagger.io/terms/
   title: Fiber Example API
@@ -50,7 +50,7 @@ paths:
       summary: Home Page
       tags:
       - Pages
-  /auth/apikey:
+  /apikey:
     get:
       consumes:
       - application/json
@@ -108,7 +108,7 @@ paths:
       summary: Generate API Key
       tags:
       - Authentication
-  /emails/gmail:
+  /google:
     get:
       consumes:
       - application/json
@@ -133,33 +133,6 @@ paths:
           schema:
             type: string
       summary: Get Gmail Emails
-      tags:
-      - Emails
-  /emails/outlook:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves emails from the user's Outlook account.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of Outlook emails
-          schema:
-            items:
-              $ref: '#/definitions/outlook.Email'
-            type: array
-        "302":
-          description: Redirect to Outlook authentication if the access token is missing
-            or invalid
-          schema:
-            type: string
-        "500":
-          description: Unable to retrieve emails due to server error or token retrieval
-            issue
-          schema:
-            type: string
-      summary: Get Outlook Emails
       tags:
       - Emails
   /google/auth:
@@ -221,6 +194,33 @@ paths:
       summary: OAuth2 Redirect for Google
       tags:
       - OAuth2
+  /outlook:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves emails from the user's Outlook account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of Outlook emails
+          schema:
+            items:
+              $ref: '#/definitions/outlook.Email'
+            type: array
+        "302":
+          description: Redirect to Outlook authentication if the access token is missing
+            or invalid
+          schema:
+            type: string
+        "500":
+          description: Unable to retrieve emails due to server error or token retrieval
+            issue
+          schema:
+            type: string
+      summary: Get Outlook Emails
+      tags:
+      - Emails
   /outlook/auth:
     get:
       consumes:
