@@ -23,7 +23,7 @@ import (
 // @contact.email tools@algo7.tools
 // @license.name The GNU General Public License v3.0
 // @license.url https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE
-// @host NONE
+// @host localhost:3000
 // @BasePath /
 func main() {
 
