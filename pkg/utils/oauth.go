@@ -69,6 +69,7 @@ func GetClient(config *oauth2.Config, tokenKey string) (*http.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to get token from redis: %w", err)
 	}
+
 	return config.Client(context.Background(), tok), nil
 }
 
@@ -104,9 +105,11 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 
 	// Retrieves the token from redis
 	tokenJSON, err := redisclient.Rdb.Get(context.Background(), redisKey).Result()
+	// Return the error directly if the key is not found
 	if err == redis.Nil {
-		return nil, fmt.Errorf("Token does not exist in redis: %w", err)
+		return nil, err
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("Unable to retrieve token from redis: %w", err)
 	}
