@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"fmt"
+	"time"
 
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/gofiber/fiber/v2"
@@ -21,6 +22,14 @@ func ValidateAPIKey(c *fiber.Ctx, key string) (bool, error) {
 	// Compare the API key from Redis with the API key from the request
 	if key != storedKey {
 		return false, nil
+	}
+
+	// If the key is valid, refresh its TTL to 7 days
+	ttl := 7 * 24 * time.Hour
+
+	err = redisclient.Rdb.Expire(context.Background(), "apiKey", ttl).Err()
+	if err != nil {
+		return false, fmt.Errorf("error refreshing API key TTL: %v", err)
 	}
 
 	return true, nil
