@@ -7,6 +7,5 @@ import (
 
 // HomeRoutes is the route handler for the home page.
 func HomeRoutes(app *fiber.App) {
-	app.Get("/", controllers.GetHome)
-	app.Get("/auth", controllers.GetAuth)
+	app.Get("/", controllers.GetHome).Name("home")
 }
