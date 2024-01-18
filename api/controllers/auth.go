@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
+	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2/google"
@@ -103,6 +106,15 @@ func GetAPIKey(c *fiber.Ctx) error {
 		return c.SendString(fmt.Sprintf("Error generating API key: %v", err))
 	}
 
+	// Set the API key in Redis with a TTL of 7 days.
+	ttl := 7 * 24 * time.Hour // 7 days in hours
+
+	// Save the key in the database
+	err = redisclient.Rdb.Set(context.Background(), apiKey, apiKey, ttl).Err()
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error Generating API key: %v", err))
+	}
+
 	// Return the API key.
-	return c.SendString(apiKey)
+	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
 }

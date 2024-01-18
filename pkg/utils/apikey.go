@@ -1,15 +1,10 @@
 package utils
 
 import (
-	"context"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
-	"time"
-
-	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 )
 
 // CreateHMACSigniture creates HMAC signiture for the given string
@@ -40,15 +35,6 @@ func GenerateAPIKey() (string, error) {
 	// Hex encode the bytes
 	apiKey := hex.EncodeToString(bytes)
 
-	// Set the API key in Redis with a TTL of 7 days.
-	ttl := 7 * 24 * time.Hour // 7 days in hours
-
-	// Save the key in the database
-	err = redisclient.Rdb.Set(context.Background(), apiKey, apiKey, ttl).Err()
-	if err != nil {
-		return "", fmt.Errorf("Error saving API key to database: %v", err)
-	}
-
 	// Return the random bytes as a hexadecimal string
-	return hex.EncodeToString(bytes), nil
+	return apiKey, nil
 }
