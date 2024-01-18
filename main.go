@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/algo7/day-planner-gpt-data-portal/api/routes"
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
+	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -15,6 +17,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error Connecting to Redis Server: %v", err)
 	}
+
+	// Generate an API key as the initial key.
+	apiKey, err := utils.GenerateAPIKey()
+	if err != nil {
+		log.Fatalf("Error Generating the initial API Key: %v", err)
+	}
+
+	err = redisclient.Rdb.Set(context.Background(), "initial_api_key", apiKey, 0).Err()
+	if err != nil {
+		log.Fatalf("Error Setting the initial API Key in Redis: %v", err)
+	}
+	log.Printf("Initial API Key: %s", apiKey)
 
 	// App config.
 	app := fiber.New(fiber.Config{
