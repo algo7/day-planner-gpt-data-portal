@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -100,11 +101,33 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 
 // GetAPIKey returns a page to get the initial API key
 func GetAPIKey(c *fiber.Ctx) error {
+	err := redisclient.Rdb.Get(context.Background(), "initial_password").Err()
+	if err != nil {
+		// If the initial password has expired, redirect to the home page.
+		if err == redis.Nil {
+			return c.RedirectToRoute("home", nil, 302)
+		}
+		// If there is an error getting the initial password, log the error and return a 500 status code.
+		log.Printf("Error getting initial password: %v", err)
+		return c.SendStatus(500)
+	}
 	return c.Render("apikey_form", fiber.Map{})
 }
 
 // PostAPIKey returns a new API key
 func PostAPIKey(c *fiber.Ctx) error {
+
+	// Check if the initial password is still in Redis
+	err := redisclient.Rdb.Get(context.Background(), "initial_password").Err()
+	if err != nil {
+		// If the initial password has expired, redirect to the home page.
+		if err == redis.Nil {
+			return c.RedirectToRoute("home", nil, 302)
+		}
+		// If there is an error getting the initial password, log the error and return a 500 status code.
+		log.Printf("Error getting initial password: %v", err)
+		return c.SendStatus(500)
+	}
 
 	// Get the password from the form
 	password := c.FormValue("password")
