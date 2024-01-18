@@ -134,6 +134,12 @@ func PostAPIKey(c *fiber.Ctx) error {
 		return c.SendString(fmt.Sprintf("Error Generating API key: %v", err))
 	}
 
+	// Expire the initial password
+	err = redisclient.Rdb.Del(context.Background(), "initial_password").Err()
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error Deleting the initial password: %v", err))
+	}
+
 	// Return the API key.
 	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
 }
