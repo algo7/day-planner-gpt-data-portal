@@ -97,8 +97,42 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 	return c.RedirectToRoute("google", nil, 302)
 }
 
-// GetAPIKey returns a new API key
+// GetAPIKey returns a page to get the initial API key
 func GetAPIKey(c *fiber.Ctx) error {
+	return c.SendString(`
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<title>Get API Key</title>
+	</head>
+	<body>
+		<h2>Enter Initial Password</h2>
+		<form action="/apikey" method="post">
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password">
+			<input type="submit" value="Submit">
+		</form>
+	</body>
+	</html>
+`)
+}
+
+// PostAPIKey returns a new API key
+func PostAPIKey(c *fiber.Ctx) error {
+
+	// Get the password from the form
+	password := c.FormValue("password")
+
+	// Get the initial API key from Redis
+	initialAPIKey, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error getting initial password: %v", err))
+	}
+
+	// Compare the password with the initial API key
+	if password != initialAPIKey {
+		return c.SendString("Incorrect password")
+	}
 
 	// Generate an API key.
 	apiKey, err := utils.GenerateAPIKey()
@@ -117,4 +151,5 @@ func GetAPIKey(c *fiber.Ctx) error {
 
 	// Return the API key.
 	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
+
 }

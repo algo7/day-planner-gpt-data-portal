@@ -21,14 +21,14 @@ func main() {
 	// Generate an API key as the initial key.
 	apiKey, err := utils.GenerateAPIKey()
 	if err != nil {
-		log.Fatalf("Error Generating the initial API Key: %v", err)
+		log.Fatalf("Error Generating the initial password: %v", err)
 	}
 
-	err = redisclient.Rdb.Set(context.Background(), "initial_api_key", apiKey, 0).Err()
+	err = redisclient.Rdb.Set(context.Background(), "initial_password", apiKey, 0).Err()
 	if err != nil {
-		log.Fatalf("Error Setting the initial API Key in Redis: %v", err)
+		log.Fatalf("Error Setting the initial password in Redis: %v", err)
 	}
-	log.Printf("Initial API Key: %s", apiKey)
+	log.Printf("Initial Password: %s", apiKey)
 
 	// App config.
 	app := fiber.New(fiber.Config{
