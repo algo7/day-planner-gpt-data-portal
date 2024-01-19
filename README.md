@@ -1,7 +1,7 @@
 # day-planner-gpt-data-portal
 Data integration solution designed to seamlessly connect data sources such as emails, news feeds, and calendar information for use with OpenAI's GPTs, which are custom versions of ChatGPT (read more here: https://openai.com/blog/introducing-gpts)
 
-At this moment, the application only supports Google and Outlook integration. The API fetches the latest unread emails (past 2 days) from the user's inbox and returns the emails in JSON format.
+At this moment, the application only supports Google and Outlook integration. The API fetches the latest unread emails (past 2 days) from the user's inbox and returns the emails in JSON format that can be used in the custom "Actions" of the GPTs.
 
 # TODO
 - [ ] Add calendar integration
