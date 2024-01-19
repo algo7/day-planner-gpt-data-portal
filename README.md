@@ -1,11 +1,14 @@
 # day-planner-gpt-data-portal
-Data integration solution designed to seamlessly connect data sources such as emails, news feeds, and calendar information for use with OpenAI's GPTs, which are custom versions of ChatGPT (read more here: https://openai.com/blog/introducing-gpts)
+Data integration solution designed to seamlessly connect data sources such as emails, news feeds, and calendar information to plan your day by using OpenAI's GPTs, which are custom versions of ChatGPT (read more here: https://openai.com/blog/introducing-gpts).
 
 At this moment, the application only supports Google and Outlook integration. The API fetches the latest unread emails (past 2 days) from the user's inbox and returns the emails in JSON format that can be used in the custom "Actions" of the GPTs.
 
 # TODO
+- [ ] Declutter and version the API endpoints
 - [ ] Add calendar integration
 - [ ] Add news feed integration
+- [ ] Write tests
+- [ ] Kubernetes manifest
 
 ## Table of Contents
 - [day-planner-gpt-data-portal](#day-planner-gpt-data-portal)
@@ -17,6 +20,7 @@ At this moment, the application only supports Google and Outlook integration. Th
     - [Makefile](#makefile)
   - [Documentation](#documentation)
   - [How to Interact with the API](#how-to-interact-with-the-api)
+  - [Limitations](#limitations)
 
 
 ## How to run it
@@ -64,3 +68,10 @@ The `/outlook` and the `/google` routes are protected by the API key, which need
 5. Visit the `/google/auth` endpoint in the browser to start the Google OAuth2 flow
 6. Visit the `/outlook` using Postman or any other API client and send the API key in the header as `X-API-KEY`
 7. Visit the `/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
+
+## Limitations
+The application most likely not work with work or school accounts unless 2 requirements are met:
+1. For Microsoft: Become a verified publisher
+     - https://learn.microsoft.com/en-us/entra/identity-platform/publisher-verification-overview
+2. For Google: Get your Oauth App verified
+     -  https://support.google.com/cloud/answer/13463073?hl=en
