@@ -49,8 +49,6 @@ func GetEmails() ([]integrations.Email, error) {
 	// Format the time in ISO 8601 format
 	twoDaysAgoStr := twoDaysAgo.Format("2006-01-02")
 
-	fmt.Println("Two days ago was:", twoDaysAgoStr)
-
 	m, err := srv.Users.Messages.List(user).Q("is:unread").Q(fmt.Sprintf("after:%s", twoDaysAgoStr)).Do()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to retrieve messages: %w", err)
