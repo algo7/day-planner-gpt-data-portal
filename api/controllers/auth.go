@@ -66,7 +66,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 		return c.SendString("No state token found in the request")
 	}
 
-	stateToken, err := redisclient.Rdb.Get(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
+	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return c.SendString("Invalid state token")
@@ -143,7 +143,6 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 
 	// Get the state token from the request
 	state := c.Query("state")
-
 	if code == "" {
 		return c.SendString("No authorization code found in the request")
 	}
@@ -153,7 +152,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 		return c.SendString("No state token found in the request")
 	}
 
-	stateToken, err := redisclient.Rdb.Get(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
+	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return c.SendString("Invalid state token")

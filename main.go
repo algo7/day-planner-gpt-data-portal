@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// Check if the initial password is already set in Redis.
-	initialPassword, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
+	err = redisclient.Rdb.Get(context.Background(), "initial_password").Err()
 	if err != nil {
 		// If the initial password is not set in Redis, generate one and set it.
 		if err == redis.Nil {
@@ -64,14 +64,9 @@ func main() {
 				log.Fatalf("Error Setting the initial password in Redis: %v", err)
 			}
 			log.Printf("Initial Password: %s This will expire once used.", apiKey)
+		} else {
+			log.Fatalf("Error checking the initial password in Redis: %v", err)
 		}
-
-		log.Fatalf("Error checking the initial password in Redis: %v", err)
-	}
-
-	// If the initial password is not an empty string, it means that it has been used.
-	if initialPassword == "" {
-		log.Print("Initial password has been used. No need to generate a new one.")
 	}
 
 	// Initialize standard Go html template engine
