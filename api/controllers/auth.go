@@ -12,6 +12,7 @@ import (
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 )
@@ -245,32 +246,70 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 	return c.SendString(url)
 }
 
-func GetAuthFromRefreshTokenGoogle(c *fiber.Ctx) error {
+// GetNewTokenFromRefreshToken handles the redirect from the OAuth2 provider
+// @Summary OAuth2 Redirect for Google
+// @Description Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.
+// @Tags OAuth2
+// @Accept json
+// @Produce json
+// @Param provider query string true "Provider to get the new token from the refresh token"
+// @Failure 500 {string} string "Unable to read client secret file or parse it to config"
+// @Success 302 {string} string "Redirect to the auth success page"
+// @Router /v1/auth/oauth/refresh [get]
+func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
-	b, err := os.ReadFile("./credentials/google_device_credentials.json")
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
-	}
+	provider := c.Query("provider")
+	providerConfig := &oauth2.Config{}
+	refreshToken := ""
 
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, "email")
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
-	}
+	switch provider {
+	case "google":
+		b, err := os.ReadFile("./credentials/google_device_credentials.json")
+		if err != nil {
+			c.Status(500).SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+		}
 
-	tok, err := utils.RetrieveToken("google_device")
-	if err != nil {
-		return c.SendString(fmt.Sprintf("Error getting token: %v", err))
+		// If modifying these scopes, delete your previously saved token.json.
+		config, err := google.ConfigFromJSON(b, "email")
+		if err != nil {
+			c.Status(500).SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+		}
+
+		tok, err := utils.RetrieveToken("google_device")
+		if err != nil {
+			return c.Status(500).SendString(fmt.Sprintf("Error getting token: %v", err))
+		}
+		refreshToken = tok.RefreshToken
+		providerConfig = config
+	case "outlook":
+		config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
+		if err != nil {
+			return c.Status(500).SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
+		}
+		tok, err := utils.RetrieveToken("outlook")
+		if err != nil {
+			return c.Status(500).SendString(fmt.Sprintf("Error getting token: %v", err))
+		}
+		refreshToken = tok.RefreshToken
+		providerConfig = config
+	default:
+		return c.Status(500).SendString("Invalid provider")
 	}
 
 	// Get the token from the refresh token
-	newTok, err := utils.GetTokenFromRefreshToken(config, tok.RefreshToken)
+	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, refreshToken)
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error getting token from refresh token: %v", err))
+		return c.Status(500).SendString(fmt.Sprintf("Error getting token from refresh token: %v", err))
 	}
 
-	return c.JSON(newTok)
+	// Marshals the token into a JSON object
+	tokenJSON, err := json.Marshal(newTok)
+	if err != nil {
+		return c.Status(500).SendString(fmt.Sprintf("Unable to marshal token: %v", err))
+	}
+	log.Println(tokenJSON)
 
+	return c.RedirectToRoute("oauth_success", nil, 302)
 }
 
 /*
