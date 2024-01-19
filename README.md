@@ -33,7 +33,7 @@ At this moment, the application only supports Google and Outlook integration. Th
 
 ## Requirements
 1. Go 1.21.4+
-2. Running Redis instance
+2. A running Redis instance
 3. An API client of your choice (Postman, Insomnia, Thunder Client etc.)
 4. A browser
 5. Docker (optional)
