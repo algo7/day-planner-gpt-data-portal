@@ -25,7 +25,8 @@ At this moment, the application only supports Google and Outlook integration. Th
 
 ## TODO
 - [ ] Add validation to `google_credentials.json` and `outlook_credentials.json` files
-- [ ] Declutter and version the API endpoints
+- [x] Declutter and version the API endpoints
+- [ ] Implement OAuth Device Flow
 - [ ] Add calendar integration
 - [ ] Add news feed integration
 - [ ] Write tests
@@ -75,7 +76,7 @@ If you have `make` installed, you can simply run `make start` to build + run the
 You can find the Swagger documentation on http://localhost:3000/docs
 
 ## Note on the API Key
-The `/outlook` and the `/google` routes are protected by the API key, which needs to be sent in the header as `X-API-KEY`. To obtain the initial API key, you need to first visit the `/apikey` endpoint in the browser and enter the initial password in the form to obtain the API key. The initial password can be found in the startup logs of the application. The initial password is randomly generated on each startup, if and only if it has not been set. The initial password will get set to an empty string the moment you obtain the API key. Subsequent visit to the `/apikey` endpoint will redirect you to the `/` or the homepage of the application. To call the protected endpoints listed above, you will need something like Postman to send the API key in the header.
+The `/v1/email/outlook` and the `/v1/email/google` routes are protected by the API key, which needs to be sent in the header as `X-API-KEY`. To obtain the initial API key, you need to first visit the `/v1/auth/internal/apikey` endpoint in the browser and enter the initial password in the form to obtain the API key. The initial password can be found in the startup logs of the application. The initial password is randomly generated on each startup, if and only if it has not been set. The initial password will get set to an empty string the moment you obtain the API key. Subsequent visit to the `/v1/auth/internal/apikey` endpoint will redirect you to the `/` or the homepage of the application. To call the protected endpoints listed above, you will need something like Postman to send the API key in the header.
 
 ### Revoking the API Key
 The API key is stored in Redis and the TTL will get extended by 7 days everytime you call an protected endpoint. It will expire after 7 days of inactivity. If you want to revoke your active API key, you will have to manually delete it from Redis.
@@ -88,11 +89,11 @@ Since the initial password has been set to an empty string the 1st time you gene
 ## How to Interact with the API
 1. Start the application
 2. Check the startup logs for the initial password
-3. Visit the `/apikey` endpoint in the browser and enter the initial password to obtain the API key
-4. Visit the `/outlook/auth` endpoint in the browser to start the Outlook OAuth2 flow
-5. Visit the `/google/auth` endpoint in the browser to start the Google OAuth2 flow
-6. Visit the `/outlook` using Postman or any other API client and send the API key in the header as `X-API-KEY`
-7. Visit the `/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
+3. Visit the `/v1/auth/internal/apikey` endpoint in the browser and enter the initial password to obtain the API key
+4. Visit the `/v1/auth/oauth/outlook` endpoint in the browser to start the Outlook OAuth2 flow
+5. Visit the `/v1/auth/oauth/google/auth` endpoint in the browser to start the Google OAuth2 flow
+6. Visit the `/v1/email/outlook` using Postman or any other API client and send the API key in the header as `X-API-KEY`
+7. Visit the `/v1/email/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
 
 ## Limitations
 The application will most likely not work with work or school accounts unless 2 requirements are met:
