@@ -10,6 +10,7 @@ At this moment, the application only supports Google and Outlook integration. Th
 - [day-planner-gpt-data-portal](#day-planner-gpt-data-portal)
   - [Table of Contents](#table-of-contents)
   - [TODO](#todo)
+  - [Requirements](#requirements)
   - [How to run it](#how-to-run-it)
     - [Locally](#locally)
     - [Docker](#docker)
@@ -30,7 +31,12 @@ At this moment, the application only supports Google and Outlook integration. Th
 - [ ] Write tests
 - [ ] Kubernetes manifest
 
-
+## Requirements
+1. Go 1.21.4+
+2. Running Redis instance
+3. An API client of your choice (Postman, Insomnia, Thunder Client etc.)
+4. Docker (optional)
+5. Make (optional)
 
 ## How to run it
 It is important that you follow the prerequisites here before running the application; otherwise, the application will not work.
