@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -37,7 +38,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, err := utils.GenerateOauthURL(config, "PCKE")
+	authURL, _, err := utils.GenerateOauthURL(config, "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -120,7 +121,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, err := utils.GenerateOauthURL(config, "PCKE")
+	authURL, _, err := utils.GenerateOauthURL(config, "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -212,15 +213,35 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	deviceFlowInfo, err := utils.GenerateOauthURL(config, "Device")
+	url, deviceCode, err := utils.GenerateOauthURL(config, "Device")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error getting device flow info: %v", err))
 	}
 
-	utils.PollToken(config, deviceFlowInfo)
+	// Start polling for the token in a non-blocking way
+	go func() {
+		tok, err := utils.PollToken(config, deviceCode)
+		if err != nil {
+			log.Println(fmt.Errorf("unable to poll token: %v", err))
+			return
+		}
+
+		// Marshals the token into a JSON object
+		tokenJSON, err := json.Marshal(tok)
+		if err != nil {
+			log.Println(fmt.Errorf("Unable to marshal token: %v", err))
+			return
+		}
+		ttl := 7 * 24 * time.Hour
+		err = redisclient.Rdb.Set(context.Background(), "google_device", tokenJSON, ttl).Err()
+		if err != nil {
+			log.Panicln(fmt.Errorf("unable to save the polled token to redis: %w", err))
+			return
+		}
+	}()
 
 	// Redirect the user to the authURL
-	return c.SendString(deviceFlowInfo)
+	return c.SendString(url)
 }
 
 /*
