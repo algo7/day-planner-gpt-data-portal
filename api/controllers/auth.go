@@ -245,6 +245,34 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 	return c.SendString(url)
 }
 
+func GetAuthFromRefreshTokenGoogle(c *fiber.Ctx) error {
+
+	b, err := os.ReadFile("./credentials/google_device_credentials.json")
+	if err != nil {
+		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+	}
+
+	// If modifying these scopes, delete your previously saved token.json.
+	config, err := google.ConfigFromJSON(b, "email")
+	if err != nil {
+		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+	}
+
+	tok, err := utils.RetrieveToken("google_device")
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error getting token: %v", err))
+	}
+
+	// Get the token from the refresh token
+	newTok, err := utils.GetTokenFromRefreshToken(config, tok.RefreshToken)
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error getting token from refresh token: %v", err))
+	}
+
+	return c.JSON(newTok)
+
+}
+
 /*
 * Internal Auth
  */
