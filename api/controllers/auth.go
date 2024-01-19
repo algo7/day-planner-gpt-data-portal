@@ -67,7 +67,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 	utils.ExchangeCodeForToken(config, code, "outlook")
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
-	return c.RedirectToRoute("outlook", nil, 302)
+	return c.RedirectToRoute("oauth_success", nil, 302)
 }
 
 // GetAuthGoogle returns the auth page for Google
@@ -134,7 +134,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 	utils.ExchangeCodeForToken(config, code, "google")
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
-	return c.RedirectToRoute("google", nil, 302)
+	return c.RedirectToRoute("oauth_success", nil, 302)
 }
 
 // GetAuthSuccess returns a page to show that the oauth authentication was successful
