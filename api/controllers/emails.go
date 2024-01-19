@@ -16,7 +16,7 @@ import (
 // @Tags Emails
 // @Accept json
 // @Produce json
-// @Success 200 {array} outlook.Email "List of Outlook emails"
+// @Success 200 {array} integrations.Email "List of Outlook emails"
 // @Failure 302 {string} string "Redirect to Outlook authentication if the access token is missing or invalid"
 // @Failure 500 {string} string "Unable to retrieve emails due to server error or token retrieval issue"
 // @Router /outlook [get]
@@ -51,7 +51,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 // @Tags Emails
 // @Accept json
 // @Produce json
-// @Success 200 {array} gmail.Email "List of Gmail emails"
+// @Success 200 {array} integrations.Email "List of Gmail emails"
 // @Failure 302 {string} string "Redirect to Google authentication if the access token is missing or invalid"
 // @Failure 500 {string} string "Unable to retrieve emails due to server error or token retrieval issue"
 // @Router /google [get]

@@ -7,22 +7,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
 
-// Email is a struct to hold the email data
-type Email struct {
-	Subject          string `json:"subject"`
-	Body             string `json:"body"`
-	Sender           string `json:"sender"`
-	RecievedDateTime string `json:"recievedDateTime"`
-}
-
 // GetEmails calls the Gmail API to get the user's emails.
-func GetEmails() ([]Email, error) {
+func GetEmails() ([]integrations.Email, error) {
 
 	b, err := os.ReadFile("./credentials/google_credentials.json")
 	if err != nil {
@@ -69,14 +62,14 @@ func GetEmails() ([]Email, error) {
 	}
 
 	// Get the content of each email
-	gmailEmails := []Email{}
+	gmailEmails := []integrations.Email{}
 	for _, msg := range m.Messages {
 		c, err := srv.Users.Messages.Get(user, msg.Id).Do()
 		if err != nil {
 			return nil, fmt.Errorf("Unable to retrieve message: %w", err)
 		}
 
-		gmailEmails = append(gmailEmails, Email{
+		gmailEmails = append(gmailEmails, integrations.Email{
 			Subject:          getHeader("Subject", c.Payload.Headers),
 			Body:             getMessageBody(c.Payload),
 			Sender:           getHeader("From", c.Payload.Headers),

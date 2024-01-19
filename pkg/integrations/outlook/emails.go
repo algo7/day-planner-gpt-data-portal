@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	abstractions "github.com/microsoft/kiota-abstractions-go"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
@@ -12,14 +13,6 @@ import (
 	"github.com/microsoftgraph/msgraph-sdk-go/models"
 	graphusers "github.com/microsoftgraph/msgraph-sdk-go/users"
 )
-
-// Email is a struct to hold the email data
-type Email struct {
-	Subject          string `json:"subject"`
-	Body             string `json:"body"`
-	Sender           string `json:"sender"`
-	RecievedDateTime string `json:"recievedDateTime"`
-}
 
 // CustomAuthenticationProvider implements the AuthenticationProvider interface
 type CustomAuthenticationProvider struct {
@@ -35,7 +28,7 @@ func (c *CustomAuthenticationProvider) AuthenticateRequest(ctx context.Context, 
 }
 
 // GetEmails calls the Microsoft Graph API to get the user's emails.
-func GetEmails() ([]Email, error) {
+func GetEmails() ([]integrations.Email, error) {
 
 	accessToken, err := utils.RetrieveToken("outlook")
 	if err != nil {
@@ -82,12 +75,12 @@ func GetEmails() ([]Email, error) {
 	// Initialize iterator
 	pageIterator, _ := msgraphcore.NewPageIterator[*models.Message](messages, graphClient.GetAdapter(), models.CreateMessageCollectionResponseFromDiscriminatorValue)
 
-	OutlookEmails := []Email{}
+	OutlookEmails := []integrations.Email{}
 
 	// Iterate over all pages
 	err = pageIterator.Iterate(context.Background(), func(message *models.Message) bool {
 
-		OutlookEmails = append(OutlookEmails, Email{
+		OutlookEmails = append(OutlookEmails, integrations.Email{
 			Subject:          *message.GetSubject(),
 			Body:             *message.GetBodyPreview(),
 			Sender:           *message.GetSender().GetEmailAddress().GetAddress(),
