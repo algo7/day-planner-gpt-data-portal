@@ -50,8 +50,8 @@ func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 	}, nil
 }
 
-// GetTokenFromWeb prints the URL to visit to authorize the application
-func GetTokenFromWeb(config *oauth2.Config) string {
+// GenerateOauthURL prints the URL to visit to authorize the application
+func GenerateOauthURL(config *oauth2.Config) string {
 
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	// fmt.Printf("Go to the following link in your browser then type the "+

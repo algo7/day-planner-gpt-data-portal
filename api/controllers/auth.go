@@ -33,7 +33,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL := utils.GetTokenFromWeb(config)
+	authURL := utils.GenerateOauthURL(config)
 
 	// Redirect the user to the authURL
 	return c.Redirect(authURL, 302)
@@ -95,7 +95,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL := utils.GetTokenFromWeb(config)
+	authURL := utils.GenerateOauthURL(config)
 
 	// Redirect the user to the authURL
 	return c.Redirect(authURL, 302)
