@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -124,37 +123,38 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 	return &tok, nil
 }
 
-// TokenFromFile retrieves a Token from a given file path.
-func TokenFromFile(fileName string) (*oauth2.Token, error) {
+// Deprecated
+// // TokenFromFile retrieves a Token from a given file path.
+// func TokenFromFile(fileName string) (*oauth2.Token, error) {
 
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read token file: %w", err)
-	}
+// 	data, err := os.ReadFile(fileName)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("unable to read token file: %w", err)
+// 	}
 
-	var tok oauth2.Token
-	err = json.Unmarshal(data, &tok)
-	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal token: %w", err)
-	}
+// 	var tok oauth2.Token
+// 	err = json.Unmarshal(data, &tok)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("unable to unmarshal token: %w", err)
+// 	}
 
-	return &tok, nil
-}
+// 	return &tok, nil
+// }
 
-// Saves a token to a file path.
-func saveToken(path string, token *oauth2.Token) error {
+// // Saves a token to a file path.
+// func saveToken(path string, token *oauth2.Token) error {
 
-	log.Printf("Saving credential file to: %s\n", path)
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return fmt.Errorf("Unable to cache oauth token: %w", err)
-	}
-	defer f.Close()
+// 	log.Printf("Saving credential file to: %s\n", path)
+// 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+// 	if err != nil {
+// 		return fmt.Errorf("Unable to cache oauth token: %w", err)
+// 	}
+// 	defer f.Close()
 
-	err = json.NewEncoder(f).Encode(token)
-	if err != nil {
-		return fmt.Errorf("Unable to encode token: %w", err)
-	}
+// 	err = json.NewEncoder(f).Encode(token)
+// 	if err != nil {
+// 		return fmt.Errorf("Unable to encode token: %w", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
