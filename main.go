@@ -27,6 +27,17 @@ import (
 // @BasePath /
 func main() {
 
+	// Check if google_credentials.json and outlook_credentials.json exist in the ./credentials folder.
+	gExists := utils.FileExists("./credentials/google_credentials.json")
+	if !gExists {
+		log.Fatal("Error: google_credentials.json not found in ./credentials folder.")
+	}
+
+	oExists := utils.FileExists("./credentials/outlook_credentials.json")
+	if !oExists {
+		log.Fatal("Error: outlook_credentials.json not found in ./credentials folder.")
+	}
+
 	// Check Redis connection.
 	err := redisclient.RedisConnectionCheck()
 	if err != nil {
