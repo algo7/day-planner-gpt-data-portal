@@ -5,7 +5,7 @@ At this moment, the application only supports Google and Outlook integration. Th
 
 [![Build and Push Docker Image](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/build.yml)
 
-
+[![CodeQL](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/codeql.yml/badge.svg)](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/codeql.yml)
 ## Table of Contents
 - [day-planner-gpt-data-portal](#day-planner-gpt-data-portal)
   - [Table of Contents](#table-of-contents)
