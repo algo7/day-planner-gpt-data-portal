@@ -3,17 +3,10 @@ Data integration solution designed to seamlessly connect data sources such as em
 
 At this moment, the application only supports Google and Outlook integration. The API fetches the latest unread emails (past 2 days) from the user's inbox and returns the emails in JSON format that can be used in the custom "Actions" of the GPTs.
 
-# TODO
-- [ ] Declutter and version the API endpoints
-- [ ] Add calendar integration
-- [ ] Add news feed integration
-- [ ] Write tests
-- [ ] Kubernetes manifest
-
 ## Table of Contents
 - [day-planner-gpt-data-portal](#day-planner-gpt-data-portal)
-- [TODO](#todo)
   - [Table of Contents](#table-of-contents)
+  - [TODO](#todo)
   - [How to run it](#how-to-run-it)
     - [Locally](#locally)
     - [Docker](#docker)
@@ -21,6 +14,15 @@ At this moment, the application only supports Google and Outlook integration. Th
   - [Documentation](#documentation)
   - [How to Interact with the API](#how-to-interact-with-the-api)
   - [Limitations](#limitations)
+
+
+## TODO
+- [ ] Declutter and version the API endpoints
+- [ ] Add calendar integration
+- [ ] Add news feed integration
+- [ ] Write tests
+- [ ] Kubernetes manifest
+
 
 
 ## How to run it
