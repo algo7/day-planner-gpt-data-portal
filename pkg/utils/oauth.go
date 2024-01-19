@@ -229,6 +229,19 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 	return &tok, nil
 }
 
+// GetTokenFromRefreshToken retrieves a token from a refresh token
+func GetTokenFromRefreshToken(config *oauth2.Config, refreshToken string) (*oauth2.Token, error) {
+	tok, err := config.TokenSource(context.Background(), &oauth2.Token{
+		RefreshToken: refreshToken,
+		Expiry:       time.Now(),
+	}).Token()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get token from refresh token: %w", err)
+	}
+	return tok, nil
+
+}
+
 // Deprecated
 // // TokenFromFile retrieves a Token from a given file path.
 // func TokenFromFile(fileName string) (*oauth2.Token, error) {
