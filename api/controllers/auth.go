@@ -235,7 +235,7 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 			return
 		}
 		ttl := 7 * 24 * time.Hour
-		err = redisclient.Rdb.Set(context.Background(), "google_device", tokenJSON, ttl).Err()
+		err = redisclient.Rdb.Set(context.Background(), "google", tokenJSON, ttl).Err()
 		if err != nil {
 			log.Panicln(fmt.Errorf("unable to save the polled token to redis: %w", err))
 			return
@@ -275,7 +275,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 			c.Status(500).SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
 		}
 
-		tok, err := utils.RetrieveToken("google_device")
+		tok, err := utils.RetrieveToken("google")
 		if err != nil {
 			return c.Status(500).SendString(fmt.Sprintf("Error getting token: %v", err))
 		}
