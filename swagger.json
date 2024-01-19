@@ -40,7 +40,106 @@
                 }
             }
         },
-        "/apikey": {
+        "/google": {
+            "get": {
+                "description": "Retrieves emails from the user's Gmail account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Gmail Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Gmail emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Google authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/outlook": {
+            "get": {
+                "description": "Retrieves emails from the user's Outlook account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Outlook Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Outlook emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/success": {
+            "get": {
+                "description": "Returns a page to show that the oauth authentication was successful.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "OAuth2 Success Page",
+                "responses": {
+                    "200": {
+                        "description": "Auth Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/internal/apikey": {
             "get": {
                 "description": "Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.",
                 "consumes": [
@@ -124,45 +223,7 @@
                 }
             }
         },
-        "/google": {
-            "get": {
-                "description": "Retrieves emails from the user's Gmail account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Emails"
-                ],
-                "summary": "Get Gmail Emails",
-                "responses": {
-                    "200": {
-                        "description": "List of Gmail emails",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to Google authentication if the access token is missing or invalid",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/google/auth": {
+        "/v1/auth/oauth/google/auth": {
             "get": {
                 "description": "Redirects to the Google OAuth2 authentication page.",
                 "consumes": [
@@ -206,7 +267,7 @@
                 }
             }
         },
-        "/google/oauth_redirect": {
+        "/v1/auth/oauth/google/callback": {
             "get": {
                 "description": "Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.",
                 "consumes": [
@@ -250,9 +311,9 @@
                 }
             }
         },
-        "/outlook": {
+        "/v1/auth/oauth/google/device": {
             "get": {
-                "description": "Retrieves emails from the user's Outlook account.",
+                "description": "Gets the link and user code for the device flow for Google",
                 "consumes": [
                     "application/json"
                 ],
@@ -260,27 +321,18 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Emails"
+                    "OAuth2"
                 ],
-                "summary": "Get Outlook Emails",
+                "summary": "Gets the link and user code for the device flow for Google",
                 "responses": {
                     "200": {
-                        "description": "List of Outlook emails",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                        "description": "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "description": "Error loading OAuth2 config",
                         "schema": {
                             "type": "string"
                         }
@@ -288,7 +340,7 @@
                 }
             }
         },
-        "/outlook/auth": {
+        "/v1/auth/oauth/outlook/auth": {
             "get": {
                 "description": "Redirects to the Outlook OAuth2 authentication page.",
                 "consumes": [
@@ -317,7 +369,7 @@
                 }
             }
         },
-        "/outlook/oauth_redirect": {
+        "/v1/auth/oauth/outlook/callback": {
             "get": {
                 "description": "Handles the callback from Outlook OAuth2 authentication, exchanging the authorization code for an access token.",
                 "consumes": [
@@ -354,29 +406,6 @@
                     },
                     "500": {
                         "description": "Error loading OAuth2 config or exchanging code for token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/success": {
-            "get": {
-                "description": "Returns a page to show that the oauth authentication was successful.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "OAuth2 Success Page",
-                "responses": {
-                    "200": {
-                        "description": "Auth Success",
                         "schema": {
                             "type": "string"
                         }
