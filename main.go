@@ -57,7 +57,7 @@ func main() {
 	log.Printf("Initial Password: %s This will expire once used.", apiKey)
 
 	// Initialize standard Go html template engine
-	engine := html.New("./api/assets", ".html")
+	engine := html.New("./assets", ".html")
 	engine.Layout("embed") // Optional. Default: "embed"
 	engine.Delims("{{", "}}")
 	engine.Reload(false)
