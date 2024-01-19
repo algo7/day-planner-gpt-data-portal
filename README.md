@@ -78,7 +78,7 @@ You can find the Swagger documentation on http://localhost:3000/docs
 The `/outlook` and the `/google` routes are protected by the API key, which needs to be sent in the header as `X-API-KEY`. To obtain the initial API key, you need to first visit the `/apikey` endpoint in the browser and enter the initial password in the form to obtain the API key. The initial password can be found in the startup logs of the application. The initial password is randomly generated on each startup, if and only if it has not been set. The initial password will get set to an empty string the moment you obtain the API key. Subsequent visit to the `/apikey` endpoint will redirect you to the `/` or the homepage of the application. To call the protected endpoints listed above, you will need something like Postman to send the API key in the header.
 
 ### Revoking the API Key
-The API key is stored in Redis and the TTL will get extend by 7 days everytime you call an protected endpoint. It will expire after 7 days of inactivity. If you want to revoke your active API key, you will have to manually delete it from Redis.
+The API key is stored in Redis and the TTL will get extended by 7 days everytime you call an protected endpoint. It will expire after 7 days of inactivity. If you want to revoke your active API key, you will have to manually delete it from Redis.
 
 ### Obtaining a new API Key after Expiration or Revocation
 Since the initial password has been set to an empty string the 1st time you generated the API Key, to obtain a new one, you have 2 options:
