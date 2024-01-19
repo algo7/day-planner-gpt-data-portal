@@ -3,6 +3,9 @@ Data integration solution designed to seamlessly connect data sources such as em
 
 At this moment, the application only supports Google and Outlook integration. The API fetches the latest unread emails (past 2 days) from the user's inbox and returns the emails in JSON format that can be used in the custom "Actions" of the GPTs.
 
+[![Build and Push Docker Image](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/algo7/day-planner-gpt-data-portal/actions/workflows/build.yml)
+
+
 ## Table of Contents
 - [day-planner-gpt-data-portal](#day-planner-gpt-data-portal)
   - [Table of Contents](#table-of-contents)
