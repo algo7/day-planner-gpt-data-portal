@@ -194,7 +194,7 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey strin
 	}
 
 	// Calculates the time to live for the token
-	ttl := tok.Expiry.Sub(time.Now())
+	ttl := tok.Expiry.Sub(time.Now().UTC())
 
 	// Saves the token to redis
 	err = redisclient.Rdb.Set(context.Background(), redisKey, tokenJSON, ttl).Err()
@@ -229,17 +229,39 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 	return &tok, nil
 }
 
+// SaveToken saves the token to redis.
+func SaveToken(redisKey string, token *oauth2.Token) error {
+
+	// Marshals the token into a JSON object
+	tokenJSON, err := json.Marshal(token)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal token: %w", err)
+	}
+
+	// Calculates the time to live for the token
+	ttl := token.Expiry.Sub(time.Now().UTC())
+
+	// Saves the token to redis
+	err = redisclient.Rdb.Set(context.Background(), redisKey, tokenJSON, ttl).Err()
+	if err != nil {
+		return fmt.Errorf("Unable to save token to redis: %w", err)
+	}
+
+	return nil
+}
+
 // GetTokenFromRefreshToken retrieves a token from a refresh token
 func GetTokenFromRefreshToken(config *oauth2.Config, refreshToken string) (*oauth2.Token, error) {
+
+	// Get the new token from the refresh token
 	tok, err := config.TokenSource(context.Background(), &oauth2.Token{
 		RefreshToken: refreshToken,
-		Expiry:       time.Now(),
 	}).Token()
+
 	if err != nil {
 		return nil, fmt.Errorf("Unable to get token from refresh token: %w", err)
 	}
 	return tok, nil
-
 }
 
 // Deprecated
