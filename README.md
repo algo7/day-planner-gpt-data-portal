@@ -79,5 +79,5 @@ The `/outlook` and the `/google` routes are protected by the API key, which need
 The application most likely not work with work or school accounts unless 2 requirements are met:
 1. For Microsoft: Become a verified publisher
      - https://learn.microsoft.com/en-us/entra/identity-platform/publisher-verification-overview
-2. For Google: Get your Oauth App verified
+2. For Google: Get your OAuth App verified
      -  https://support.google.com/cloud/answer/13463073?hl=en
