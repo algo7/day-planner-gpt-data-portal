@@ -137,6 +137,18 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 	return c.RedirectToRoute("google", nil, 302)
 }
 
+// GetAuthSuccess returns a page to show that the oauth authentication was successful
+// @Summary OAuth2 Success Page
+// @Description Returns a page to show that the oauth authentication was successful.
+// @Tags OAuth2
+// @Accept */*
+// @Produce plain
+// @Success 200 {string} string "Auth Success"
+// @Router /success [get]
+func GetAuthSuccess(c *fiber.Ctx) error {
+	return c.SendString("Auth Success")
+}
+
 // GetAPIKey returns a page to get the initial API key
 // @Summary Get API Key Page
 // @Description Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.
