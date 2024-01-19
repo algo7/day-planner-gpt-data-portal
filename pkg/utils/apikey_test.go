@@ -1,8 +1,6 @@
 package utils
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestGenerateAPIKey(t *testing.T) {
 	apiKey, err := GenerateAPIKey()
