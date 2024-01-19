@@ -15,6 +15,10 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
+/*
+* OAuth2 PCKE Flow
+ */
+
 // GetAuthOutlook returns the auth page for Outlook
 // @Summary Get Outlook Auth Page
 // @Description Redirects to the Outlook OAuth2 authentication page.
@@ -193,6 +197,10 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 func GetAuthSuccess(c *fiber.Ctx) error {
 	return c.SendString("Auth Success")
 }
+
+/*
+* Internal Auth
+ */
 
 // GetAPIKey returns a page to get the initial API key
 // @Summary Get API Key Page
