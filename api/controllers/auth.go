@@ -27,7 +27,7 @@ import (
 func GetAuthOutlook(c *fiber.Ctx) error {
 
 	// Load the OAuth2 config from the JSON file
-	config, err := utils.OAuth2ConfigFromJSON("outlook_credentials.json")
+	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error loading Oauth2 config: %v", err))
 	}
@@ -58,7 +58,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 	}
 
 	// Load the OAuth2 config from the JSON file
-	config, err := utils.OAuth2ConfigFromJSON("outlook_credentials.json")
+	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error loading Oauth2 config: %v", err))
 	}
@@ -83,7 +83,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 // @Router /google/auth [get]
 func GetAuthGoogle(c *fiber.Ctx) error {
 
-	b, err := os.ReadFile("google_credentials.json")
+	b, err := os.ReadFile("./credentials/google_credentials.json")
 	if err != nil {
 		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
 	}
@@ -119,7 +119,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 		return c.SendString("No authorization code found in the request")
 	}
 
-	b, err := os.ReadFile("google_credentials.json")
+	b, err := os.ReadFile("./credentials/google_credentials.json")
 	if err != nil {
 		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
 	}

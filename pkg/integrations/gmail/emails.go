@@ -24,7 +24,7 @@ type Email struct {
 // GetEmails calls the Gmail API to get the user's emails.
 func GetEmails() ([]Email, error) {
 
-	b, err := os.ReadFile("google_credentials.json")
+	b, err := os.ReadFile("./credentials/google_credentials.json")
 	if err != nil {
 		return nil, fmt.Errorf("Unable to read client secret file: %w", err)
 	}
