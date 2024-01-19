@@ -81,9 +81,8 @@ func main() {
 	// Healthcheck middleware /livez and /readyz routes
 	app.Use(healthcheck.New())
 
-	app.Use(swagger.New(swagger.Config{
-		FilePath: "./docs/swagger.json",
-	}))
+	// Swagger middleware
+	app.Use(swagger.New(swagger.ConfigDefault))
 
 	// Load the routes.
 	routes.HomeRoutes(app)

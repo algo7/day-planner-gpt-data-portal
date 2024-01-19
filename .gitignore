@@ -26,3 +26,5 @@ outlook_credentials.json
 outlook_token.json
 google_credentials.json
 google_token.json
+# The executable
+main
