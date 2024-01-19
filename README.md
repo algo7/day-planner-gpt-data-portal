@@ -64,7 +64,7 @@ If you have `make` installed, you can simply run `make start` to build + run the
 ## Documentation
 You can find the Swagger documentation on http://localhost:3000/docs
 
-The `/outlook` and the `/google` routes are protected by the API key, which needs to be sent in the header as `X-API-KEY`. To obtain the initial API key, you need to first visit the `/apikey` endpoint in the browser and enter the initial password in the form to obtain the API key. The initial password is can be found in the startup logs of the application. The initial password is randomly generated on each startup. The initial password will expire the moment you obtain the API key. Subsequent visit to the `/apikey` endpoint will redirect you to the `/` or the homepage of the application. To call the protected endpoints listed above, you will need something like Postman to send the API key in the header.
+The `/outlook` and the `/google` routes are protected by the API key, which needs to be sent in the header as `X-API-KEY`. To obtain the initial API key, you need to first visit the `/apikey` endpoint in the browser and enter the initial password in the form to obtain the API key. The initial password can be found in the startup logs of the application. The initial password is randomly generated on each startup. The initial password will expire the moment you obtain the API key. Subsequent visit to the `/apikey` endpoint will redirect you to the `/` or the homepage of the application. To call the protected endpoints listed above, you will need something like Postman to send the API key in the header.
 
 ## How to Interact with the API
 1. Start the application
