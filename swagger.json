@@ -143,7 +143,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/gmail.Email"
+                                "$ref": "#/definitions/integrations.Email"
                             }
                         }
                     },
@@ -174,7 +174,7 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "OAuth2 Redirect for Google",
+                "summary": "Get Google Auth Page",
                 "parameters": [
                     {
                         "type": "string",
@@ -269,7 +269,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/outlook.Email"
+                                "$ref": "#/definitions/integrations.Email"
                             }
                         }
                     },
@@ -360,27 +360,33 @@
                     }
                 }
             }
+        },
+        "/success": {
+            "get": {
+                "description": "Returns a page to show that the oauth authentication was successful.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "OAuth2 Success Page",
+                "responses": {
+                    "200": {
+                        "description": "Auth Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "gmail.Email": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "recievedDateTime": {
-                    "type": "string"
-                },
-                "sender": {
-                    "type": "string"
-                },
-                "subject": {
-                    "type": "string"
-                }
-            }
-        },
-        "outlook.Email": {
+        "integrations.Email": {
             "type": "object",
             "properties": {
                 "body": {
