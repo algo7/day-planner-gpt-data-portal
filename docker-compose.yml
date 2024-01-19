@@ -2,6 +2,8 @@ version: '3.9'
 services:
   # Service name
   data-portal:
+    # For official images: ghcr.io/algo7/day-planner-gpt-data-portal/portal:latest
+    # Local image
     image: data-portal:latest
     depends_on:
       - redis
