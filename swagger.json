@@ -412,6 +412,44 @@
                     }
                 }
             }
+        },
+        "/v1/auth/oauth/refresh": {
+            "get": {
+                "description": "Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "OAuth2 Redirect for Google",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider to get the new token from the refresh token",
+                        "name": "provider",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the auth success page",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to read client secret file or parse it to config",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
