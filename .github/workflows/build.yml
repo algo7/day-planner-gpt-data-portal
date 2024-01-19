@@ -31,6 +31,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache-dependency-path: 'go.sum'
+      - run: go version
 
       - name: Test
         run: |
