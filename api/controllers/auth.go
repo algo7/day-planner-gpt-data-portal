@@ -33,11 +33,11 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error loading Oauth2 config: %v", err))
+		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, err := utils.GenerateOauthURL(config)
+	authURL, err := utils.GenerateOauthURL(config, "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -85,7 +85,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error loading Oauth2 config: %v", err))
+		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
 	}
 
 	// Exchange the code for an access token here
@@ -120,7 +120,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, err := utils.GenerateOauthURL(config)
+	authURL, err := utils.GenerateOauthURL(config, "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -186,16 +186,41 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 	return c.RedirectToRoute("oauth_success", nil, 302)
 }
 
-// GetAuthSuccess returns a page to show that the oauth authentication was successful
-// @Summary OAuth2 Success Page
-// @Description Returns a page to show that the oauth authentication was successful.
+/*
+* OAuth2 Device Flow
+ */
+
+// GetAuthGoogleDevice gets the information for the device flow for Google
+// @Summary Gets the link and user code for the device flow for Google
+// @Description Gets the link and user code for the device flow for Google
 // @Tags OAuth2
-// @Accept */*
-// @Produce plain
-// @Success 200 {string} string "Auth Success"
-// @Router /success [get]
-func GetAuthSuccess(c *fiber.Ctx) error {
-	return c.SendString("Auth Success")
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Go to the following link http://google.com/something and enter the code DX7UW2Z4"
+// @Failure 500 {string} string "Error loading OAuth2 config"
+func GetAuthGoogleDevice(c *fiber.Ctx) error {
+
+	b, err := os.ReadFile("./credentials/google_device_credentials.json")
+	if err != nil {
+		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+	}
+
+	// If modifying these scopes, delete your previously saved token.json.
+	config, err := google.ConfigFromJSON(b, "email")
+	if err != nil {
+		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+	}
+
+	// Get the URL to visit to authorize the application
+	deviceFlowInfo, err := utils.GenerateOauthURL(config, "Device")
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error getting device flow info: %v", err))
+	}
+
+	utils.PollToken(config, deviceFlowInfo)
+
+	// Redirect the user to the authURL
+	return c.SendString(deviceFlowInfo)
 }
 
 /*
@@ -296,4 +321,20 @@ func PostAPIKey(c *fiber.Ctx) error {
 
 	// Return the API key.
 	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
+}
+
+/*
+* Success
+ */
+
+// GetAuthSuccess returns a page to show that the oauth authentication was successful
+// @Summary OAuth2 Success Page
+// @Description Returns a page to show that the oauth authentication was successful.
+// @Tags OAuth2
+// @Accept */*
+// @Produce plain
+// @Success 200 {string} string "Auth Success"
+// @Router /success [get]
+func GetAuthSuccess(c *fiber.Ctx) error {
+	return c.SendString("Auth Success")
 }

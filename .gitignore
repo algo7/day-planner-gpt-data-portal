@@ -29,3 +29,4 @@ google_credentials.json
 google_token.json
 # The executable
 main
+credentials/google_device_credentials.json

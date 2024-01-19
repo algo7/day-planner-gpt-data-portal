@@ -14,6 +14,7 @@ import (
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 // OAuth2Config is a struct to hold the OAuth2 configuration
@@ -74,26 +75,43 @@ func generateStateToken() (string, error) {
 }
 
 // GenerateOauthURL prints the URL to visit to authorize the application
-func GenerateOauthURL(config *oauth2.Config) (string, error) {
+func GenerateOauthURL(config *oauth2.Config, flowType string) (string, error) {
 
-	// Generate a random state token
-	stateToken, err := generateStateToken()
-	if err != nil {
-		return "", fmt.Errorf("unable to generate state token: %w", err)
+	switch flowType {
+	case "PCKE":
+		// Generate a random state token
+		stateToken, err := generateStateToken()
+		if err != nil {
+			return "", fmt.Errorf("unable to generate state token: %w", err)
+		}
+
+		// Save the state token to redis and set the time to live to 2 minutes
+		err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("stateToken_%s", stateToken), stateToken, 2*time.Minute).Err()
+		if err != nil {
+			return "", fmt.Errorf("unable to save state token to redis: %w", err)
+		}
+
+		authURL := config.AuthCodeURL(stateToken, oauth2.AccessTypeOffline)
+		// fmt.Printf("Go to the following link in your browser then type the "+
+		// 	"authorization code: \n%v\n", authURL)
+
+		return authURL, nil
+
+	case "Device":
+		config.Endpoint.DeviceAuthURL = google.Endpoint.DeviceAuthURL
+		resp, err := config.DeviceAuth(context.Background(), oauth2.AccessTypeOffline)
+		if err != nil {
+			return "", fmt.Errorf("unable to retrieve device auth: %w", err)
+		}
+
+		if resp == nil {
+			return "", fmt.Errorf("device auth response is nil")
+		}
+
+		return fmt.Sprintf("Go to the following link %s and enter the code %s", resp.VerificationURI, resp.UserCode), nil
 	}
 
-	// Save the state token to redis and set the time to live to 2 minutes
-	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("stateToken_%s", stateToken), stateToken, 2*time.Minute).Err()
-	if err != nil {
-		return "", fmt.Errorf("unable to save state token to redis: %w", err)
-	}
-
-	authURL := config.AuthCodeURL(stateToken, oauth2.AccessTypeOffline)
-
-	// fmt.Printf("Go to the following link in your browser then type the "+
-	// 	"authorization code: \n%v\n", authURL)
-
-	return authURL, nil
+	return "", fmt.Errorf("invalid flow type: %s", flowType)
 }
 
 // GetClient Retrieve a token, saves the token, then returns the generated client.
@@ -107,6 +125,21 @@ func GetClient(config *oauth2.Config, tokenKey string) (*http.Client, error) {
 	}
 
 	return config.Client(context.Background(), tok), nil
+}
+
+func PollToken(config *oauth2.Config, deviceCode string) (*oauth2.Token, error) {
+	// This is a simplified example. In practice, you should implement exponential backoff,
+	// handle errors, and respect the interval specified by Google's response.
+	for {
+		select {
+		case <-time.After(5 * time.Second): // Poll every 5 seconds, for example
+			token, err := config.Exchange(context.Background(), deviceCode)
+			if err == nil {
+				return token, nil
+			}
+			// Handle specific error cases here (like expiration of the device code)
+		}
+	}
 }
 
 // ExchangeCodeForToken handles the redirect from the OAuth2 provider and exchanges the code for a token
