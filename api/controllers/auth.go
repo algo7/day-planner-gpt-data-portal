@@ -162,16 +162,22 @@ func GetAuthSuccess(c *fiber.Ctx) error {
 func GetAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password exists in Redis
-	err := redisclient.Rdb.Get(context.Background(), "initial_password").Err()
+	initialPassword, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
 	if err != nil {
-		// If the initial password has expired, redirect to the home page.
+		// If the initial password does not exist, warn the user to restart the server to generate a new password.
 		if err == redis.Nil {
-			return c.RedirectToRoute("home", nil, 302)
+			return c.SendString("Initial password does not exist. Please restart the server to generate a new password.")
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
 		return c.SendStatus(500)
 	}
+
+	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
+	if initialPassword == "" {
+		return c.RedirectToRoute("home", nil, 302)
+	}
+
 	return c.Render("apikey_form", fiber.Map{})
 }
 
@@ -190,31 +196,27 @@ func GetAPIKey(c *fiber.Ctx) error {
 func PostAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password is still in Redis
-	err := redisclient.Rdb.Get(context.Background(), "initial_password").Err()
+	initialPassword, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
 	if err != nil {
-		// If the initial password has expired, redirect to the home page.
+		// If the initial password does not exist, warn the user to restart the server to generate a new password.
 		if err == redis.Nil {
-			return c.RedirectToRoute("home", nil, 302)
+			return c.SendString("Initial password does not exist. Please restart the server to generate a new password.")
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
 		return c.SendStatus(500)
 	}
 
+	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
+	if initialPassword == "" {
+		return c.RedirectToRoute("home", nil, 302)
+	}
+
 	// Get the password from the form
 	password := c.FormValue("password")
 
-	// Get the initial API key from Redis
-	initialAPIKey, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
-	if err != nil {
-		if err == redis.Nil {
-			return c.SendString("Initial password has expired. Please restart the server to generate a new password.")
-		}
-		return c.SendString(fmt.Sprintf("Error getting initial password: %v", err))
-	}
-
-	// Compare the password with the initial API key
-	if password != initialAPIKey {
+	// Compare the password with the initial password
+	if password != initialPassword {
 		return c.SendString("Incorrect password")
 	}
 
@@ -230,11 +232,11 @@ func PostAPIKey(c *fiber.Ctx) error {
 	// Save the key in the database
 	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("apikey_%s", apiKey), apiKey, ttl).Err()
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error Generating API key: %v", err))
+		return c.SendString(fmt.Sprintf("Error saving API key: %v", err))
 	}
 
-	// Expire the initial password
-	err = redisclient.Rdb.Del(context.Background(), "initial_password").Err()
+	// Set the initial password to an empty string
+	err = redisclient.Rdb.Set(context.Background(), "initial_password", "", 0).Err()
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error Deleting the initial password: %v", err))
 	}
