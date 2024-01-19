@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/template/html/v2"
+	"github.com/redis/go-redis/v9"
 )
 
 // @title Fiber Example API
@@ -44,17 +45,34 @@ func main() {
 		log.Fatalf("Error Connecting to Redis Server: %v", err)
 	}
 
-	// Generate an API key as the initial key.
-	apiKey, err := utils.GenerateAPIKey()
+	// Check if the initial password is already set in Redis.
+	initialPassword, err := redisclient.Rdb.Get(context.Background(), "initial_password").Result()
 	if err != nil {
-		log.Fatalf("Error Generating the initial password: %v", err)
+		// If the initial password is not set in Redis, generate one and set it.
+		if err == redis.Nil {
+			log.Println("Initial Password not set in Redis. Generating...")
+
+			// Generate an API key as the initial password.
+			apiKey, err := utils.GenerateAPIKey()
+			if err != nil {
+				log.Fatalf("Error Generating the initial password: %v", err)
+			}
+
+			// Set the initial password in Redis.
+			err = redisclient.Rdb.Set(context.Background(), "initial_password", apiKey, 0).Err()
+			if err != nil {
+				log.Fatalf("Error Setting the initial password in Redis: %v", err)
+			}
+			log.Printf("Initial Password: %s This will expire once used.", apiKey)
+		}
+
+		log.Fatalf("Error checking the initial password in Redis: %v", err)
 	}
 
-	err = redisclient.Rdb.Set(context.Background(), "initial_password", apiKey, 0).Err()
-	if err != nil {
-		log.Fatalf("Error Setting the initial password in Redis: %v", err)
+	// If the initial password is not an empty string, it means that it has been used.
+	if initialPassword == "" {
+		log.Print("Initial password has been used. No need to generate a new one.")
 	}
-	log.Printf("Initial Password: %s This will expire once used.", apiKey)
 
 	// Initialize standard Go html template engine
 	engine := html.New("./assets", ".html")
