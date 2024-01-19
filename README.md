@@ -20,6 +20,7 @@ At this moment, the application only supports Google and Outlook integration. Th
 
 
 ## TODO
+- [ ] Add validation to `google_credentials.json` and `outlook_credentials.json` files
 - [ ] Declutter and version the API endpoints
 - [ ] Add calendar integration
 - [ ] Add news feed integration
