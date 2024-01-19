@@ -28,7 +28,7 @@ import (
 // @Produce json
 // @Success 302 {string} string "Redirect to the Outlook OAuth2 authentication page."
 // @Failure 500 {string} string "Error loading OAuth2 config"
-// @Router /outlook/auth [get]
+// @Router /v1/auth/oauth/outlook/auth [get]
 func GetAuthOutlook(c *fiber.Ctx) error {
 
 	// Load the OAuth2 config from the JSON file
@@ -47,7 +47,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	return c.Redirect(authURL, 302)
 }
 
-// GetOauthRedirectOutlook handles the redirect from the OAuth2 provider
+// GetOAuthCallbackOutlook handles the redirect from the OAuth2 provider
 // @Summary OAuth2 Redirect for Outlook
 // @Description Handles the callback from Outlook OAuth2 authentication, exchanging the authorization code for an access token.
 // @Tags OAuth2
@@ -57,8 +57,8 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 // @Success 302 {string} string "Redirect to a predefined route after successful authorization"
 // @Failure 400 {string} string "No authorization code found in the request"
 // @Failure 500 {string} string "Error loading OAuth2 config or exchanging code for token"
-// @Router /outlook/oauth_redirect [get]
-func GetOauthRedirectOutlook(c *fiber.Ctx) error {
+// @Router /v1/auth/oauth/outlook/callback [get]
+func GetOAuthCallbackOutlook(c *fiber.Ctx) error {
 
 	code := c.Query("code")
 	state := c.Query("state")
@@ -106,7 +106,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 // @Success 302 {string} string "Redirect to a predefined route after successful authorization"
 // @Failure 400 {string} string "No authorization code found in the request"
 // @Failure 500 {string} string "Error loading OAuth2 config or exchanging code for token"
-// @Router /google/auth [get]
+// @Router /v1/auth/oauth/google/auth [get]
 func GetAuthGoogle(c *fiber.Ctx) error {
 
 	b, err := os.ReadFile("./credentials/google_credentials.json")
@@ -130,7 +130,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	return c.Redirect(authURL, 302)
 }
 
-// GetOauthRedirectGoogle handles the redirect from the OAuth2 provider
+// GetOAuthCallbackGoogle handles the redirect from the OAuth2 provider
 // @Summary OAuth2 Redirect for Google
 // @Description Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.
 // @Tags OAuth2
@@ -140,8 +140,8 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 // @Success 302 {string} string "Redirect to a predefined route after successful authorization"
 // @Failure 400 {string} string "No authorization code found in the request"
 // @Failure 500 {string} string "Unable to read client secret file or parse it to config"
-// @Router /google/oauth_redirect [get]
-func GetOauthRedirectGoogle(c *fiber.Ctx) error {
+// @Router /v1/auth/oauth/google/callback [get]
+func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
 
 	// Get the authorization code from the request
 	code := c.Query("code")
@@ -199,6 +199,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {string} string "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx"
 // @Failure 500 {string} string "Error loading OAuth2 config"
+// @Router /v1/auth/oauth/google/device [get]
 func GetAuthGoogleDevice(c *fiber.Ctx) error {
 
 	b, err := os.ReadFile("./credentials/google_device_credentials.json")
@@ -257,7 +258,7 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 // @Success 200 {object} map[string]interface{} "Render the API key form page"
 // @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
 // @Failure 500 {string} string "Error getting initial password from Redis"
-// @Router /apikey [get]
+// @Router /v1/auth/internal/apikey [get]
 func GetAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password exists in Redis
@@ -291,7 +292,7 @@ func GetAPIKey(c *fiber.Ctx) error {
 // @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
 // @Failure 400 {string} string "Incorrect password"
 // @Failure 500 {string} string "Error getting initial password or generating API key"
-// @Router /apikey [post]
+// @Router /v1/auth/internal/apikey [post]
 func PostAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password is still in Redis
