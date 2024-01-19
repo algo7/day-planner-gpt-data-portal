@@ -197,7 +197,7 @@ func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 // @Tags OAuth2
 // @Accept json
 // @Produce json
-// @Success 200 {string} string "Go to the following link http://google.com/something and enter the code DX7UW2Z4"
+// @Success 200 {string} string "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx"
 // @Failure 500 {string} string "Error loading OAuth2 config"
 func GetAuthGoogleDevice(c *fiber.Ctx) error {
 
