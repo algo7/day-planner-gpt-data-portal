@@ -35,8 +35,9 @@ At this moment, the application only supports Google and Outlook integration. Th
 1. Go 1.21.4+
 2. Running Redis instance
 3. An API client of your choice (Postman, Insomnia, Thunder Client etc.)
-4. Docker (optional)
-5. Make (optional)
+4. A browser
+5. Docker (optional)
+6. Make (optional)
 
 ## How to run it
 It is important that you follow the prerequisites here before running the application; otherwise, the application will not work.
