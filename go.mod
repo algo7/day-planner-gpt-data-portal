@@ -1,6 +1,6 @@
 module github.com/algo7/day-planner-gpt-data-portal
 
-go 1.21.4
+go 1.21
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
