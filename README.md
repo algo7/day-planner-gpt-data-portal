@@ -95,7 +95,7 @@ Since the initial password has been set to an empty string the 1st time you gene
 7. Visit the `/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
 
 ## Limitations
-The application most likely not work with work or school accounts unless 2 requirements are met:
+The application will most likely not work with work or school accounts unless 2 requirements are met:
 1. For Microsoft: Become a verified publisher
      - https://learn.microsoft.com/en-us/entra/identity-platform/publisher-verification-overview
 2. For Google: Get your OAuth App verified
