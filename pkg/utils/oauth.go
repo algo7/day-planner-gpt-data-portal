@@ -2,8 +2,11 @@ package utils
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -49,14 +52,48 @@ func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 	}, nil
 }
 
-// GenerateOauthURL prints the URL to visit to authorize the application
-func GenerateOauthURL(config *oauth2.Config) string {
+// GenerateStateToken generates a random state token for OAuth2 authorization
+func generateStateToken() (string, error) {
+	b := make([]byte, 16) // 16 bytes equals 128 bits
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
 
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	// Calculate the SHA-256 hash sum of the 'b' byte slice
+	sha256Hash := sha256.New()
+	_, err = io.WriteString(sha256Hash, string(b))
+	if err != nil {
+		return "", err
+	}
+
+	// Convert the hash sum to a hexadecimal string
+	hashSum := fmt.Sprintf("%x", sha256Hash.Sum(nil))
+
+	return hashSum, nil
+}
+
+// GenerateOauthURL prints the URL to visit to authorize the application
+func GenerateOauthURL(config *oauth2.Config) (string, error) {
+
+	// Generate a random state token
+	stateToken, err := generateStateToken()
+	if err != nil {
+		return "", fmt.Errorf("unable to generate state token: %w", err)
+	}
+
+	// Save the state token to redis and set the time to live to 2 minutes
+	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("stateToken_%s", stateToken), stateToken, 2*time.Minute).Err()
+	if err != nil {
+		return "", fmt.Errorf("unable to save state token to redis: %w", err)
+	}
+
+	authURL := config.AuthCodeURL(stateToken, oauth2.AccessTypeOffline)
+
 	// fmt.Printf("Go to the following link in your browser then type the "+
 	// 	"authorization code: \n%v\n", authURL)
 
-	return authURL
+	return authURL, nil
 }
 
 // GetClient Retrieve a token, saves the token, then returns the generated client.

@@ -5,7 +5,11 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
+	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
+	"github.com/go-redis/redismock/v9"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 )
 
@@ -55,6 +59,9 @@ func assertEqual(t *testing.T, name, expected, actual string) {
 }
 
 func TestGenerateOauthURL(t *testing.T) {
+	db, mock := redismock.NewClientMock()
+	assert := assert.New(t)
+
 	// Mock OAuth2 Config
 	config := &oauth2.Config{
 		ClientID:     "testClientID",
@@ -67,28 +74,35 @@ func TestGenerateOauthURL(t *testing.T) {
 		},
 	}
 
+	// Mock Redis and Setoperation before calling the function
+	redisclient.Rdb = db
+	keyPattern := `^stateToken_[a-fA-F0-9]{64}$`
+	valuePattern := `^[a-fA-F0-9]{64}$`
+	mock.Regexp().ExpectSet(keyPattern, valuePattern, 2*time.Minute).SetVal("OK") // Simulate successful SET operation
+
 	// Call the function
-	resultURL := GenerateOauthURL(config)
+	resultURL, err := GenerateOauthURL(config)
+	assert.NoError(err, "GenerateOauthURL returned an error")
+
+	// Close the mock database connection
+	defer db.Close()
 
 	// Parse the URL
 	parsedURL, err := url.Parse(resultURL)
-
-	if err != nil {
-		t.Fatalf("Failed to parse URL: %v", err)
-	}
+	assert.NoError(err, "Failed to parse URL")
 
 	// Check if the URL starts with the AuthURL
-	if !strings.HasPrefix(resultURL, config.Endpoint.AuthURL) {
-		t.Errorf("URL does not start with AuthURL, got %s", resultURL)
-	}
+	assert.True(strings.HasPrefix(resultURL, config.Endpoint.AuthURL), "URL does not start with AuthURL")
 
 	// Check if the URL contains the client ID
-	if parsedURL.Query().Get("client_id") != config.ClientID {
-		t.Errorf("URL does not contain correct client_id, expected %s, got %s", config.ClientID, parsedURL.Query().Get("client_id"))
-	}
+	assert.Equal(config.ClientID, parsedURL.Query().Get("client_id"), "URL does not contain correct client_id")
 
 	// Check if the URL contains the redirect URL
-	if parsedURL.Query().Get("redirect_uri") != config.RedirectURL {
-		t.Errorf("URL does not contain correct redirect_uri, expected %s, got %s", config.RedirectURL, parsedURL.Query().Get("redirect_uri"))
-	}
+	assert.Equal(config.RedirectURL, parsedURL.Query().Get("redirect_uri"), "URL does not contain correct redirect_uri")
+
+	// Check if the URL contains the state token
+	assert.Regexp(`^[a-fA-F0-9]{64}$`, parsedURL.Query().Get("state"), "URL does not contain correct state token")
+
+	// Check if Redis expectations were met
+	assert.NoError(mock.ExpectationsWereMet(), "there were unfulfilled expectations")
 }

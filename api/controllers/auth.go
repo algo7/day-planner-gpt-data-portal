@@ -33,7 +33,10 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL := utils.GenerateOauthURL(config)
+	authURL, err := utils.GenerateOauthURL(config)
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
+	}
 
 	// Redirect the user to the authURL
 	return c.Redirect(authURL, 302)
@@ -53,8 +56,26 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 
 	code := c.Query("code")
+	state := c.Query("state")
 	if code == "" {
 		return c.SendString("No authorization code found in the request")
+	}
+
+	// Check if the state token is valid
+	if state == "" {
+		return c.SendString("No state token found in the request")
+	}
+
+	stateToken, err := redisclient.Rdb.Get(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return c.SendString("Invalid state token")
+		}
+		return c.SendString(fmt.Sprintf("Error getting state token from Redis: %v", err))
+	}
+
+	if stateToken != state {
+		return c.SendString("Invalid state token")
 	}
 
 	// Load the OAuth2 config from the JSON file
@@ -95,7 +116,10 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL := utils.GenerateOauthURL(config)
+	authURL, err := utils.GenerateOauthURL(config)
+	if err != nil {
+		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
+	}
 
 	// Redirect the user to the authURL
 	return c.Redirect(authURL, 302)
@@ -114,9 +138,31 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 // @Router /google/oauth_redirect [get]
 func GetOauthRedirectGoogle(c *fiber.Ctx) error {
 
+	// Get the authorization code from the request
 	code := c.Query("code")
+
+	// Get the state token from the request
+	state := c.Query("state")
+
 	if code == "" {
 		return c.SendString("No authorization code found in the request")
+	}
+
+	// Check if the state token is valid
+	if state == "" {
+		return c.SendString("No state token found in the request")
+	}
+
+	stateToken, err := redisclient.Rdb.Get(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return c.SendString("Invalid state token")
+		}
+		return c.SendString(fmt.Sprintf("Error getting state token from Redis: %v", err))
+	}
+
+	if stateToken != state {
+		return c.SendString("Invalid state token")
 	}
 
 	b, err := os.ReadFile("./credentials/google_credentials.json")
