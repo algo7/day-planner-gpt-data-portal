@@ -71,7 +71,7 @@ func GetOauthRedirectOutlook(c *fiber.Ctx) error {
 }
 
 // GetAuthGoogle returns the auth page for Google
-// @Summary OAuth2 Redirect for Google
+// @Summary Get Google Auth Page
 // @Description Redirects to the Google OAuth2 authentication page.
 // @Tags OAuth2
 // @Accept json
