@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  # Service name
+  data-portal:
+    image: data-portal:latest
+    depends_on:
+      - redis
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      REDIS_HOST: redis:6379
+    volumes:
+      # The credentials folder is mounted to the container
+      - type: bind
+        source: ./credentials
+        target: /go/src/app/credentials
+        bind:
+          create_host_path: true
+    ports:
+      # Port in the container
+      - target: 3000
+        # Port used by the routing mesh
+        published: 3000
+        protocol: tcp
+    # Set up a dedicated network
+    networks:
+      - data-portal-network
+
+  # Service name
+  redis:
+    image: redis:alpine
+    ports:
+      # Port in the container
+      - target: 6379
+        # Port used by the routing mesh
+        published: 6379
+        protocol: tcp
+    networks:
+      - data-portal-network
+
+## Config section
+networks:
+  data-portal-network:
+    name: data-portal-network
+    driver: bridge
+    external: false
