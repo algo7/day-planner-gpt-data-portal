@@ -83,7 +83,7 @@ The API key is stored in Redis and the TTL will get extended by 7 days everytime
 ### Obtaining a new API Key after Expiration or Revocation
 Since the initial password has been set to an empty string the 1st time you generated the API Key, to obtain a new one, you have 2 options:
 1. Delete the `initial_password` key in Redis, restart the application (a new initial password will be generated), then go to the `/apikey` endpoint in the browser to obtain a new API key
-2. Set the `initial_password` key in Redis to a non-empty string and then go to the `/apikey` endpoint in the browser to obtain a new API key
+2. Set the `initial_password` key in Redis to a non-empty string and then go to the `/apikey` endpoint in the browser to obtain a new API key using the new password
 
 ## How to Interact with the API
 1. Start the application
