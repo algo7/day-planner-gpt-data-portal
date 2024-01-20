@@ -44,8 +44,8 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
 
-	// Redirect the user to the authURL
-	return c.Redirect(authURL, 302)
+	// Show the user the URL to visit to authorize our application
+	return c.SendString(fmt.Sprintf("Please go to %s and complete the authorization flow", authURL))
 }
 
 // GetOAuthCallbackOutlook handles the redirect from the OAuth2 provider
@@ -127,8 +127,8 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
 
-	// Redirect the user to the authURL
-	return c.Redirect(authURL, 302)
+	// Show the user the URL to visit to authorize our application
+	return c.SendString(fmt.Sprintf("Please go to %s and complete the authorization flow", authURL))
 }
 
 // GetOAuthCallbackGoogle handles the redirect from the OAuth2 provider
