@@ -90,7 +90,7 @@ Since the initial password has been set to an empty string the 1st time you gene
 1. Start the application
 2. Check the startup logs for the initial password
 3. Visit the `/v1/auth/internal/apikey` endpoint in the browser and enter the initial password to obtain the API key
-4. Visit the `/v1/auth/oauth/outlook` endpoint in the browser to start the Outlook OAuth2 flow
+4. Visit the `/v1/auth/oauth/outlook/auth` endpoint in the browser to start the Outlook OAuth2 flow
 5. Visit the `/v1/auth/oauth/google/auth` endpoint in the browser to start the Google OAuth2 flow
 6. Visit the `/v1/email/outlook` using Postman or any other API client and send the API key in the header as `X-API-KEY`
 7. Visit the `/v1/email/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
