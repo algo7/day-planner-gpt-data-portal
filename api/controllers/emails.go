@@ -29,7 +29,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 		// Redis related errors that are not due to the token key not being found
 		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
 			log.Printf("Error getting emails due to redis connection: %v", err)
-			return c.SendString("Unable to get emails due to token retrieval error. Please check the server logs.")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		// Redis related errors that are due to the token key not being found
@@ -63,7 +63,7 @@ func GetGmailEmails(c *fiber.Ctx) error {
 		// Redis related errors that are not due to the token key not being found
 		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
 			log.Printf("Error getting emails due to redis connection: %v", err)
-			return c.SendString("Unable to get emails due to token retrieval error. Please check the server logs.")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		// Redis related errors that are due to the token key not being found
