@@ -205,19 +205,22 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 
 	b, err := os.ReadFile("./credentials/google_device_credentials.json")
 	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+		log.Printf("Unable to read client secret file: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(b, "email")
 	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+		log.Printf("Unable to parse client secret file to config: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Get the URL to visit to authorize the application
 	url, deviceCode, err := utils.GenerateOauthURL(config, "Device")
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error getting device flow info: %v", err))
+		log.Printf("Error getting device flow info: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Start polling for the token in a non-blocking way
@@ -232,12 +235,11 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 		tokenJSON, err := json.Marshal(tok)
 		if err != nil {
 			log.Println(fmt.Errorf("Unable to marshal token: %v", err))
-			return
 		}
 		ttl := 7 * 24 * time.Hour
 		err = redisclient.Rdb.Set(context.Background(), "google", tokenJSON, ttl).Err()
 		if err != nil {
-			log.Panicln(fmt.Errorf("unable to save the polled token to redis: %w", err))
+			log.Println(fmt.Errorf("unable to save the polled token to redis: %w", err))
 			return
 		}
 	}()
@@ -266,29 +268,35 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 	case "google":
 		b, err := os.ReadFile("./credentials/google_device_credentials.json")
 		if err != nil {
-			c.Status(500).SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+			log.Printf("Unable to read client secret file: %v", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		// If modifying these scopes, delete your previously saved token.json.
 		config, err := google.ConfigFromJSON(b, "email")
 		if err != nil {
-			c.Status(500).SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+			log.Printf("Unable to parse client secret file to config: %v", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		tok, err := utils.RetrieveToken("google")
 		if err != nil {
-			return c.Status(500).SendString(fmt.Sprintf("Error getting token: %v", err))
+			log.Printf("Error getting token: %v", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 		refreshToken = tok.RefreshToken
 		providerConfig = config
+
 	case "outlook":
 		config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 		if err != nil {
-			return c.Status(500).SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
+			log.Printf("Error loading OAuth2 config: %v", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 		tok, err := utils.RetrieveToken("outlook")
 		if err != nil {
-			return c.Status(500).SendString(fmt.Sprintf("Error getting token: %v", err))
+			log.Printf("Error getting token: %v", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 		refreshToken = tok.RefreshToken
 		providerConfig = config
@@ -299,13 +307,15 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 	// Get the token from the refresh token
 	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, refreshToken)
 	if err != nil {
-		return c.Status(500).SendString(fmt.Sprintf("Error getting token from refresh token: %v", err))
+		log.Printf("Error getting token from refresh token: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Marshals the token into a JSON object
 	tokenJSON, err := json.Marshal(newTok)
 	if err != nil {
-		return c.Status(500).SendString(fmt.Sprintf("Unable to marshal token: %v", err))
+		log.Printf("Unable to marshal token: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	log.Println(tokenJSON)
 
@@ -333,11 +343,13 @@ func GetAPIKey(c *fiber.Ctx) error {
 	if err != nil {
 		// If the initial password does not exist, warn the user to restart the server to generate a new password.
 		if err == redis.Nil {
-			return c.SendString("Initial password does not exist. Please restart the server to generate a new password.")
+			return c.
+				Status(fiber.StatusInternalServerError).
+				SendString("Initial password does not exist. Please restart the server to generate a new password.")
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.SendStatus(500)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
@@ -371,7 +383,7 @@ func PostAPIKey(c *fiber.Ctx) error {
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.SendStatus(500)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
@@ -390,7 +402,8 @@ func PostAPIKey(c *fiber.Ctx) error {
 	// Generate an API key.
 	apiKey, err := utils.GenerateAPIKey()
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error generating API key: %v", err))
+		log.Printf("Error generating API key: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Set the API key in Redis with a TTL of 7 days.
@@ -399,13 +412,15 @@ func PostAPIKey(c *fiber.Ctx) error {
 	// Save the key in the database
 	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("apikey_%s", apiKey), apiKey, ttl).Err()
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error saving API key: %v", err))
+		log.Printf("Error saving API key: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Set the initial password to an empty string
 	err = redisclient.Rdb.Set(context.Background(), "initial_password", "", 0).Err()
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error Deleting the initial password: %v", err))
+		log.Printf("Error Deleting the initial password: %v", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// Return the API key.
@@ -425,5 +440,5 @@ func PostAPIKey(c *fiber.Ctx) error {
 // @Success 200 {string} string "Auth Success"
 // @Router /success [get]
 func GetAuthSuccess(c *fiber.Ctx) error {
-	return c.SendString("Auth Success")
+	return c.Status(200).SendString("Auth Success")
 }
