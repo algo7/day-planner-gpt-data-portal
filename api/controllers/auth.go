@@ -301,7 +301,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 		refreshToken = tok.RefreshToken
 		providerConfig = config
 	default:
-		return c.Status(500).SendString("Invalid provider")
+		return c.Status(fiber.StatusInternalServerError).SendString("Invalid provider")
 	}
 
 	// Get the token from the refresh token
