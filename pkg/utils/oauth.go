@@ -166,7 +166,7 @@ func PollToken(config *oauth2.Config, deviceCode string) (*oauth2.Token, error) 
 }
 
 // ExchangeCodeForToken handles the redirect from the OAuth2 provider and exchanges the code for a token
-func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey string) (*oauth2.Token, error) {
+func ExchangeCodeForToken(config *oauth2.Config, authCode string) (*oauth2.Token, error) {
 
 	// Converts authorization code into a token
 	tok, err := config.Exchange(context.TODO(), authCode)

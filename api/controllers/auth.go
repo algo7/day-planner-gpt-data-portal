@@ -93,7 +93,7 @@ func GetOAuthCallbackOutlook(c *fiber.Ctx) error {
 	}
 
 	// Exchange the code for an access token here
-	tok, err := utils.ExchangeCodeForToken(config, code, "outlook")
+	tok, err := utils.ExchangeCodeForToken(config, code)
 	if err != nil {
 		log.Printf("Error exchanging code for token: %v", err)
 		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
@@ -195,7 +195,7 @@ func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
 	}
 
 	// Exchange the code for an access token here
-	utils.ExchangeCodeForToken(config, code, "google")
+	utils.ExchangeCodeForToken(config, code)
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 	return c.RedirectToRoute("oauth_success", nil, 302)
