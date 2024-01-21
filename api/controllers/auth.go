@@ -45,7 +45,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.SendString(fmt.Sprintf("Please go to %s and complete the authorization flow", authURL))
+	return c.SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
 }
 
 // GetOAuthCallbackOutlook handles the redirect from the OAuth2 provider
@@ -128,7 +128,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.SendString(fmt.Sprintf("Please go to %s and complete the authorization flow", authURL))
+	return c.SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
 }
 
 // GetOAuthCallbackGoogle handles the redirect from the OAuth2 provider
