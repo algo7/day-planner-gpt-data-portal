@@ -76,8 +76,8 @@ func TestGenerateOauthURL(t *testing.T) {
 
 	// Mock Redis and Setoperation before calling the function
 	redisclient.Rdb = db
-	keyPattern := `^stateToken_[a-fA-F0-9]{64}$`
-	valuePattern := `^[a-fA-F0-9]{64}$`
+	keyPattern := `^stateToken_[a-z]+-[0-9a-f]{64}$`
+	valuePattern := `[a-z]+-[0-9a-f]{64}$`
 	mock.Regexp().ExpectSet(keyPattern, valuePattern, 2*time.Minute).SetVal("OK") // Simulate successful SET operation
 
 	// Call the function
@@ -101,7 +101,7 @@ func TestGenerateOauthURL(t *testing.T) {
 	assert.Equal(config.RedirectURL, parsedURL.Query().Get("redirect_uri"), "URL does not contain correct redirect_uri")
 
 	// Check if the URL contains the state token
-	assert.Regexp(`^[a-fA-F0-9]{64}$`, parsedURL.Query().Get("state"), "URL does not contain correct state token")
+	assert.Regexp(`^[a-z]+-[0-9a-f]{64}$`, parsedURL.Query().Get("state"), "URL does not contain correct state token")
 
 	// Check if Redis expectations were met
 	assert.NoError(mock.ExpectationsWereMet(), "there were unfulfilled expectations")
