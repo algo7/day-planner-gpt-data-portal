@@ -41,17 +41,17 @@ func GetOAtuh(c *fiber.Ctx) error {
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.GetOAuth2Config(provider)
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
 	}
 
 	// Get the URL to visit to authorize the application
 	authURL, _, err := utils.GenerateOauthURL(config, provider, "PCKE")
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.Status(fiber.StatusContinue).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s\n", authURL))
+	return c.Status(200).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s\n", authURL))
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider

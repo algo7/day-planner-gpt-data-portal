@@ -90,7 +90,7 @@ Since the initial password has been set to an empty string the 1st time you gene
 1. Start the application
 2. Check the startup logs for the initial password
 3. Visit the `/v1/auth/internal/apikey` endpoint in the browser and enter the initial password to obtain the API key
-4. Call the `/v1/auth/oauth/auth` endpoint using an API client using the query parameter `provider` with the value `google` or `outlook`
+4. Call the `/v1/auth/oauth` endpoint using an API client using the query parameter `provider` with the value `google` or `outlook`
    - The endpoint will present you with a link to the OAuth2 provider to complete the authentication flow 
    - Complete the authentication flow
 5. Call the `/v1/email/outlook` using using an API client and send the API key in the header as `X-API-KEY` to get the latest unread emails from Outlook

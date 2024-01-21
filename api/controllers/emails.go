@@ -34,7 +34,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
-			log.Println("Access token not found in redis")
+			log.Println("Outlook Access token not found in redis")
 			return c.RedirectToRoute("outlook_auth", nil, 302)
 		}
 
@@ -69,7 +69,7 @@ func GetGmailEmails(c *fiber.Ctx) error {
 
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
-			log.Println("Access token not found in redis")
+			log.Println("Gmail Access token not found in redis")
 			return c.RedirectToRoute("google_auth", nil, 302)
 		}
 
