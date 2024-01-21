@@ -14,72 +14,46 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/gmail/v1"
 )
 
 /*
 * OAuth2 PCKE Flow
  */
 
-// GetAuthOutlook returns the auth page for Outlook
+// GetOAtuh returns the auth URL for the given OAuth2 provider
 // @Summary Get Outlook Auth Page
 // @Description Redirects to the Outlook OAuth2 authentication page.
 // @Tags OAuth2
 // @Accept json
 // @Produce json
+// @Param provider query string true "The OAuth2 provider to get the auth URL for"
 // @Success 302 {string} string "Redirect to the Outlook OAuth2 authentication page."
 // @Failure 500 {string} string "Error loading OAuth2 config"
-// @Router /v1/auth/oauth/outlook/auth [get]
-func GetAuthOutlook(c *fiber.Ctx) error {
+// @Router /v1/auth/oauth [get]
+func GetOAtuh(c *fiber.Ctx) error {
+
+	provider := c.Query("provider")
+
+	// Check if the provider is valid
+	_, ok := utils.ValidProviders[provider]
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
+	}
 
 	// Load the OAuth2 config from the JSON file
-	config, err := utils.GetOAuth2Config("outlook")
+	config, err := utils.GetOAuth2Config(provider)
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, _, err := utils.GenerateOauthURL(config, "outlook", "PCKE")
+	authURL, _, err := utils.GenerateOauthURL(config, provider, "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.Status(fiber.StatusContinue).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
-}
-
-// GetAuthGoogle returns the auth page for Google
-// @Summary Get Google Auth Page
-// @Description Redirects to the Google OAuth2 authentication page.
-// @Tags OAuth2
-// @Accept json
-// @Produce json
-// @Param code query string true "Authorization code from Google OAuth2 provider"
-// @Success 302 {string} string "Redirect to a predefined route after successful authorization"
-// @Failure 400 {string} string "No authorization code found in the request"
-// @Failure 500 {string} string "Error loading OAuth2 config or exchanging code for token"
-// @Router /v1/auth/oauth/google/auth [get]
-func GetAuthGoogle(c *fiber.Ctx) error {
-
-	b, err := os.ReadFile("./credentials/google_credentials.json")
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
-	}
-
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
-	}
-
-	// Get the URL to visit to authorize the application
-	authURL, _, err := utils.GenerateOauthURL(config, "google", "PCKE")
-	if err != nil {
-		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
-	}
-
-	// Show the user the URL to visit to authorize our application
-	return c.Status(fiber.StatusContinue).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
+	return c.Status(fiber.StatusContinue).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s\n", authURL))
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider
