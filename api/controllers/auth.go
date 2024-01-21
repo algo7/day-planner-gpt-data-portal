@@ -234,6 +234,10 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 	return c.SendString(url)
 }
 
+/*
+* Refresh Token
+ */
+
 // GetNewTokenFromRefreshToken handles the redirect from the OAuth2 provider
 // @Summary OAuth2 Redirect for Google
 // @Description Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.
