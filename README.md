@@ -93,6 +93,7 @@ Since the initial password has been set to an empty string the 1st time you gene
 4. Call the `/v1/auth/oauth` endpoint using an API client using the query parameter `provider` with the value `google` or `outlook`
    - The endpoint will present you with a link to the OAuth2 provider to complete the authentication flow 
    - Complete the authentication flow
+   - Both Outlook and Google access tokens are valid for 1 hour
 5. Call the `/v1/email/outlook` using using an API client and send the API key in the header as `X-API-KEY` to get the latest unread emails from Outlook
 6. Call the `/v1/email/google` using using an API client and send the API key in the header as `X-API-KEY` to get the latest unread emails from Gmail
 7. Call the `/v1/auth/oauth/refresh` using an API client using the query parameter with the value `google` or `outlook` to refresh the token.
