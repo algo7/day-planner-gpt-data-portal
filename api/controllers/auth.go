@@ -282,7 +282,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 		tok, err := utils.RetrieveToken("google")
 		if err != nil {
 			log.Printf("Error getting token: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
+			return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
 		}
 		refreshToken = tok.RefreshToken
 		providerConfig = config
@@ -296,19 +296,19 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 		tok, err := utils.RetrieveToken("outlook")
 		if err != nil {
 			log.Printf("Error getting token: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
+			return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
 		}
 		refreshToken = tok.RefreshToken
 		providerConfig = config
 	default:
-		return c.Status(fiber.StatusInternalServerError).SendString("Invalid provider")
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
 	}
 
 	// Get the token from the refresh token
 	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, refreshToken)
 	if err != nil {
 		log.Printf("Error getting token from refresh token: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error getting token from refresh token")
 	}
 
 	// Marshals the token into a JSON object
