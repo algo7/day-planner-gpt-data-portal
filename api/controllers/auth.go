@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/oauth2/google"
 )
 
 /*
@@ -145,16 +143,9 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 // @Router /v1/auth/oauth/google/device [get]
 func GetAuthGoogleDevice(c *fiber.Ctx) error {
 
-	b, err := os.ReadFile("./credentials/google_device_credentials.json")
+	config, err := utils.GetOAuth2Config("google")
 	if err != nil {
-		log.Printf("Unable to read client secret file: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, "email")
-	if err != nil {
-		log.Printf("Unable to parse client secret file to config: %v", err)
+		log.Printf("Error getting OAuth2 config: %v", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 

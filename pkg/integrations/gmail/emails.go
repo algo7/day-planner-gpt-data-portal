@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
@@ -17,29 +15,28 @@ import (
 // GetEmails calls the Gmail API to get the user's emails.
 func GetEmails() ([]integrations.Email, error) {
 
-	b, err := os.ReadFile("./credentials/google_credentials.json")
+	// Get the OAuth2 config
+	config, err := utils.GetOAuth2Config("google")
 	if err != nil {
-		return nil, fmt.Errorf("Unable to read client secret file: %w", err)
+		return nil, err
 	}
 
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to parse client secret file to config: %w", err)
-	}
-
+	// Get the token from redis
 	token, err := utils.RetrieveToken("google")
 	if err != nil {
 		return nil, err
 	}
 
+	// Create a new HTTP client and bind it to the token
 	client := config.Client(context.Background(), token)
 
+	// Create a new Gmail service client using the HTTP client
 	srv, err := gmail.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		return nil, fmt.Errorf("Unable to retrieve Gmail client: %w", err)
 	}
 
+	// The current logged in user
 	user := "me"
 
 	// Get the current time

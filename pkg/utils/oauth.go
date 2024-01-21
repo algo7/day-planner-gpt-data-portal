@@ -69,13 +69,13 @@ func GetOAuth2Config(provider string) (*oauth2.Config, error) {
 		// Load google credentials from JSON file
 		b, err := os.ReadFile("./credentials/google_credentials.json")
 		if err != nil {
-			return nil, fmt.Errorf("Unable to read client secret file: %v", err)
+			return nil, fmt.Errorf("Unable to read client secret file for %s: %v", provider, err)
 		}
 
 		// If modifying these scopes, delete your previously saved token.json.
 		config, err := google.ConfigFromJSON(b, "email")
 		if err != nil {
-			return nil, fmt.Errorf("Unable to parse client secret file to config: %v", err)
+			return nil, fmt.Errorf("Unable to parse client secret file to config for %s: %v", provider, err)
 		}
 
 		authConfig = config
@@ -85,13 +85,13 @@ func GetOAuth2Config(provider string) (*oauth2.Config, error) {
 		// Load outlook credentials from JSON file
 		config, err := oauth2ConfigFromJSON("./credentials/outlook_credentials.json")
 		if err != nil {
-			return nil, fmt.Errorf("Error loading OAuth2 config: %v", err)
+			return nil, fmt.Errorf("Unable to read client secret file for %s: %v", provider, err)
 		}
 
 		authConfig = config
 
 	default:
-		return nil, fmt.Errorf("invalid provider: %s", provider)
+		return nil, fmt.Errorf("Invalid provider: %s", provider)
 	}
 
 	return authConfig, nil
