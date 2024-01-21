@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
@@ -48,68 +49,6 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	return c.SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
 }
 
-// GetOAuthCallbackOutlook handles the redirect from the OAuth2 provider
-// @Summary OAuth2 Redirect for Outlook
-// @Description Handles the callback from Outlook OAuth2 authentication, exchanging the authorization code for an access token.
-// @Tags OAuth2
-// @Accept json
-// @Produce json
-// @Param code query string true "Authorization code from Outlook OAuth2 provider"
-// @Success 302 {string} string "Redirect to a predefined route after successful authorization"
-// @Failure 400 {string} string "No authorization code found in the request"
-// @Failure 500 {string} string "Error loading OAuth2 config or exchanging code for token"
-// @Router /v1/auth/oauth/outlook/callback [get]
-func GetOAuthCallbackOutlook(c *fiber.Ctx) error {
-
-	code := c.Query("code")
-	state := c.Query("state")
-	if code == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("No authorization code found in the request")
-	}
-
-	// Check if the state token is valid
-	if state == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("No state token found in the request")
-	}
-
-	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
-	if err != nil {
-		if err == redis.Nil {
-			return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
-		}
-		log.Printf("Error getting state token from Redis: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error getting state token")
-	}
-
-	if stateToken != state {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
-	}
-
-	// Load the OAuth2 config from the JSON file
-	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
-	if err != nil {
-		log.Printf("Error loading OAuth2 config: %v", err)
-		c.Status(fiber.StatusInternalServerError).SendString("Error loading OAuth2 config")
-	}
-
-	// Exchange the code for an access token here
-	tok, err := utils.ExchangeCodeForToken(config, code)
-	if err != nil {
-		log.Printf("Error exchanging code for token: %v", err)
-		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
-	}
-
-	// Save the token in Redis
-	err = utils.SaveToken("outlook", tok)
-	if err != nil {
-		log.Printf("Error saving token: %v", err)
-		c.Status(fiber.StatusInternalServerError).SendString("Error saving token")
-	}
-
-	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
-	return c.RedirectToRoute("oauth_success", nil, 302)
-}
-
 // GetAuthGoogle returns the auth page for Google
 // @Summary Get Google Auth Page
 // @Description Redirects to the Google OAuth2 authentication page.
@@ -144,18 +83,19 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	return c.SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
 }
 
-// GetOAuthCallbackGoogle handles the redirect from the OAuth2 provider
-// @Summary OAuth2 Redirect for Google
-// @Description Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.
+// GetOAuthCallBack handles the redirect from the OAuth2 provider
+// @Summary Handles OAuth2 Redirect
+// @Description Handles the callback from the give OAuth2 provider, exchanging the authorization code for an access token.
 // @Tags OAuth2
 // @Accept json
 // @Produce json
 // @Param code query string true "Authorization code from Google OAuth2 provider"
 // @Success 302 {string} string "Redirect to a predefined route after successful authorization"
 // @Failure 400 {string} string "No authorization code found in the request"
-// @Failure 500 {string} string "Unable to read client secret file or parse it to config"
-// @Router /v1/auth/oauth/google/callback [get]
-func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
+// @Failure 400 {string} string "No state token found in the request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /v1/auth/oauth/callback [get]
+func GetOAuthCallBack(c *fiber.Ctx) error {
 
 	// Get the authorization code and the state token from the request
 	code := c.Query("code")
@@ -183,26 +123,48 @@ func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
 	}
 
-	b, err := os.ReadFile("./credentials/google_credentials.json")
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
-	}
+	// Parses the state token base on - as the delimiter to get the provider
+	provider := strings.Split(state, "-")[0]
 
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+	// Empty OAuth2 config to be filled based on the provider
+	authConfig := &oauth2.Config{}
+
+	switch provider {
+	case "google":
+		// Load the OAuth2 config from the JSON file
+		b, err := os.ReadFile("./credentials/google_credentials.json")
+		if err != nil {
+			c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
+		}
+
+		// If modifying these scopes, delete your previously saved token.json.
+		config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+		if err != nil {
+			c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
+		}
+		// Populate the authConfig variable
+		authConfig = config
+	case "outlook":
+		// Load the OAuth2 config from the JSON file
+		config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
+		if err != nil {
+			log.Printf("Error loading OAuth2 config: %v", err)
+			c.Status(fiber.StatusInternalServerError).SendString("Error loading OAuth2 config")
+		}
+		authConfig = config
+	default:
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
 	}
 
 	// Exchange the code for an access token here
-	tok, err := utils.ExchangeCodeForToken(config, code)
+	tok, err := utils.ExchangeCodeForToken(authConfig, code)
 	if err != nil {
 		log.Printf("Error exchanging code for token: %v", err)
 		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
 	}
 
 	// Save the token in Redis
-	err = utils.SaveToken("google", tok)
+	err = utils.SaveToken(provider, tok)
 	if err != nil {
 		log.Printf("Error saving token: %v", err)
 		c.Status(fiber.StatusInternalServerError).SendString("Error saving token")
