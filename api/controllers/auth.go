@@ -311,13 +311,12 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error getting token from refresh token")
 	}
 
-	// Marshals the token into a JSON object
-	tokenJSON, err := json.Marshal(newTok)
+	// Update the token in Redis
+	err = utils.UpdateToken(provider, newTok)
 	if err != nil {
-		log.Printf("Unable to marshal token: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		log.Printf("Error updating token: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error updating token")
 	}
-	log.Println(string(tokenJSON))
 
 	return c.RedirectToRoute("oauth_success", nil, 302)
 }

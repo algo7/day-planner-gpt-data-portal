@@ -247,6 +247,24 @@ func SaveToken(redisKey string, token *oauth2.Token) error {
 	return nil
 }
 
+// UpdateToken updates the token in redis.
+func UpdateToken(redisKey string, token *oauth2.Token) error {
+
+	// Calculates the time to live for the token
+	ttl := token.Expiry.Sub(time.Now().UTC())
+
+	// Saves the token to redis
+	err := redisclient.Rdb.HSet(context.Background(), redisKey, token).Err()
+	if err != nil {
+		return fmt.Errorf("Unable to save token to redis: %w", err)
+	}
+
+	// Sets the time to live for the token
+	err = redisclient.Rdb.Expire(context.Background(), redisKey, ttl).Err()
+
+	return nil
+}
+
 // GetTokenFromRefreshToken retrieves a token from a refresh token
 func GetTokenFromRefreshToken(config *oauth2.Config, refreshToken string) (*oauth2.Token, error) {
 
