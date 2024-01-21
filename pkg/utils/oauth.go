@@ -14,7 +14,6 @@ import (
 	"time"
 
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
-	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -117,11 +116,11 @@ func GenerateOauthURL(config *oauth2.Config, flowType string) (string, string, e
 }
 
 // GetClient Retrieve a token, saves the token, then returns the generated client.
-func GetClient(config *oauth2.Config, tokenKey string) (*http.Client, error) {
+func GetClient(config *oauth2.Config, redisKey string) (*http.Client, error) {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tok, err := RetrieveToken(tokenKey)
+	tok, err := RetrieveToken(redisKey)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get token from redis: %w", err)
 	}
@@ -209,43 +208,41 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey strin
 func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 
 	// Retrieves the token from redis
-	tokenJSON, err := redisclient.Rdb.Get(context.Background(), redisKey).Result()
-	// Return the error directly if the key is not found
-	if err == redis.Nil {
-		return nil, err
-	}
-
+	token, err := redisclient.Rdb.HGetAll(context.Background(), redisKey).Result()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to retrieve token from redis: %w", err)
 	}
 
-	// Unmarshals the token
-	var tok oauth2.Token
-	err = json.Unmarshal([]byte(tokenJSON), &tok)
+	// Marshals the token into a JSON object in order to unmarshal it into an oauth2.Token struct
+	tokenJSON, err := json.Marshal(token)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to marshal token: %w", err)
+	}
+
+	// Unmarshals the token into an oauth2.Token struct
+	var tok *oauth2.Token
+	err = json.Unmarshal(tokenJSON, tok)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to unmarshal token: %w", err)
 	}
 
-	return &tok, nil
+	return tok, nil
 }
 
 // SaveToken saves the token to redis.
 func SaveToken(redisKey string, token *oauth2.Token) error {
 
-	// Marshals the token into a JSON object
-	tokenJSON, err := json.Marshal(token)
-	if err != nil {
-		return fmt.Errorf("Unable to marshal token: %w", err)
-	}
-
 	// Calculates the time to live for the token
 	ttl := token.Expiry.Sub(time.Now().UTC())
 
 	// Saves the token to redis
-	err = redisclient.Rdb.Set(context.Background(), redisKey, tokenJSON, ttl).Err()
+	err := redisclient.Rdb.HSet(context.Background(), redisKey, token).Err()
 	if err != nil {
 		return fmt.Errorf("Unable to save token to redis: %w", err)
 	}
+
+	// Sets the time to live for the token
+	err = redisclient.Rdb.Expire(context.Background(), redisKey, ttl).Err()
 
 	return nil
 }
