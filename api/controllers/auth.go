@@ -245,7 +245,7 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param provider query string true "Provider to get the new token from the refresh token"
-// @Failure 500 {string} string "Unable to read client secret file or parse it to config"
+// @Failure 500 {string} string "Internal server error"
 // @Success 302 {string} string "Redirect to the auth success page"
 // @Router /v1/auth/oauth/refresh [get]
 func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
