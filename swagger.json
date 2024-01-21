@@ -147,9 +147,9 @@
                 }
             }
         },
-        "/v1/auth/oauth/google/auth": {
+        "/v1/auth/oauth": {
             "get": {
-                "description": "Redirects to the Google OAuth2 authentication page.",
+                "description": "Redirects to the Outlook OAuth2 authentication page.",
                 "consumes": [
                     "application/json"
                 ],
@@ -159,31 +159,25 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "Get Google Auth Page",
+                "summary": "Get Outlook Auth Page",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Authorization code from Google OAuth2 provider",
-                        "name": "code",
+                        "description": "The OAuth2 provider to get the auth URL for",
+                        "name": "provider",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "302": {
-                        "description": "Redirect to a predefined route after successful authorization",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "No authorization code found in the request",
+                        "description": "Redirect to the Outlook OAuth2 authentication page.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Error loading OAuth2 config or exchanging code for token",
+                        "description": "Error loading OAuth2 config",
                         "schema": {
                             "type": "string"
                         }
@@ -191,9 +185,9 @@
                 }
             }
         },
-        "/v1/auth/oauth/google/callback": {
+        "/v1/auth/oauth/callback": {
             "get": {
-                "description": "Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.",
+                "description": "Handles the callback from the give OAuth2 provider, exchanging the authorization code for an access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -203,7 +197,7 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "OAuth2 Redirect for Google",
+                "summary": "Handles OAuth2 Redirect",
                 "parameters": [
                     {
                         "type": "string",
@@ -221,13 +215,13 @@
                         }
                     },
                     "400": {
-                        "description": "No authorization code found in the request",
+                        "description": "No state token found in the request",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Unable to read client secret file or parse it to config",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "string"
                         }
@@ -257,79 +251,6 @@
                     },
                     "500": {
                         "description": "Error loading OAuth2 config",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/oauth/outlook/auth": {
-            "get": {
-                "description": "Redirects to the Outlook OAuth2 authentication page.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "Get Outlook Auth Page",
-                "responses": {
-                    "302": {
-                        "description": "Redirect to the Outlook OAuth2 authentication page.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error loading OAuth2 config",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/oauth/outlook/callback": {
-            "get": {
-                "description": "Handles the callback from Outlook OAuth2 authentication, exchanging the authorization code for an access token.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "OAuth2 Redirect for Outlook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization code from Outlook OAuth2 provider",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "302": {
-                        "description": "Redirect to a predefined route after successful authorization",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "No authorization code found in the request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error loading OAuth2 config or exchanging code for token",
                         "schema": {
                             "type": "string"
                         }
@@ -367,7 +288,7 @@
                         }
                     },
                     "500": {
-                        "description": "Unable to read client secret file or parse it to config",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "string"
                         }
