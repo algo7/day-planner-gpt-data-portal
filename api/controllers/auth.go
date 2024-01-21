@@ -51,7 +51,7 @@ func GetOAtuh(c *fiber.Ctx) error {
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.Status(200).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s\n", authURL))
+	return c.Status(200).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL:\n %s", authURL))
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider

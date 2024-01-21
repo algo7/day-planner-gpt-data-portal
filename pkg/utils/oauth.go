@@ -17,6 +17,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/gmail/v1"
 )
 
 // OAuth2Config is a struct to hold the OAuth2 configuration
@@ -73,7 +74,7 @@ func GetOAuth2Config(provider string) (*oauth2.Config, error) {
 		}
 
 		// If modifying these scopes, delete your previously saved token.json.
-		config, err := google.ConfigFromJSON(b, "email")
+		config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to parse client secret file to config for %s: %v", provider, err)
 		}
