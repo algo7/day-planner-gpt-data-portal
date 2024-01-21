@@ -56,7 +56,7 @@ func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 }
 
 // GenerateStateToken generates a random state token for OAuth2 authorization
-func generateStateToken() (string, error) {
+func generateStateToken(provider string) (string, error) {
 	b := make([]byte, 16) // 16 bytes equals 128 bits
 	_, err := rand.Read(b)
 	if err != nil {
@@ -71,18 +71,18 @@ func generateStateToken() (string, error) {
 	}
 
 	// Convert the hash sum to a hexadecimal string
-	hashSum := fmt.Sprintf("%x", sha256Hash.Sum(nil))
+	hashSum := fmt.Sprintf("%s-%x", provider, sha256Hash.Sum(nil))
 
 	return hashSum, nil
 }
 
 // GenerateOauthURL prints the URL to visit to authorize the application
-func GenerateOauthURL(config *oauth2.Config, flowType string) (string, string, error) {
+func GenerateOauthURL(config *oauth2.Config, provider string, flowType string) (string, string, error) {
 
 	switch flowType {
 	case "PCKE":
 		// Generate a random state token
-		stateToken, err := generateStateToken()
+		stateToken, err := generateStateToken(provider)
 		if err != nil {
 			return "", "", fmt.Errorf("unable to generate state token: %w", err)
 		}

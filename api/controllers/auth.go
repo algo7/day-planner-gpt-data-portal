@@ -39,7 +39,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, _, err := utils.GenerateOauthURL(config, "PCKE")
+	authURL, _, err := utils.GenerateOauthURL(config, "outlook", "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -135,7 +135,7 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	authURL, _, err := utils.GenerateOauthURL(config, "PCKE")
+	authURL, _, err := utils.GenerateOauthURL(config, "google", "PCKE")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
 	}
@@ -241,7 +241,7 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 	}
 
 	// Get the URL to visit to authorize the application
-	url, deviceCode, err := utils.GenerateOauthURL(config, "Device")
+	url, deviceCode, err := utils.GenerateOauthURL(config, "google", "Device")
 	if err != nil {
 		log.Printf("Error getting device flow info: %v", err)
 		return c.SendStatus(fiber.StatusInternalServerError)

@@ -81,7 +81,7 @@ func TestGenerateOauthURL(t *testing.T) {
 	mock.Regexp().ExpectSet(keyPattern, valuePattern, 2*time.Minute).SetVal("OK") // Simulate successful SET operation
 
 	// Call the function
-	resultURL, _, err := GenerateOauthURL(config, "PCKE")
+	resultURL, _, err := GenerateOauthURL(config, "google", "PCKE")
 	assert.NoError(err, "GenerateOauthURL returned an error")
 
 	// Close the mock database connection
