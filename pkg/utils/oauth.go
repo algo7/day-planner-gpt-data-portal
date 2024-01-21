@@ -217,8 +217,23 @@ func SaveToken(redisKey string, token *oauth2.Token) error {
 	// Calculates the time to live for the token
 	ttl := token.Expiry.Sub(time.Now().UTC())
 
+	// Marshals the token into a JSON object
+	var tokenMap map[string]interface{}
+
+	// Marshals the token into a JSON object in order to unmarshal it into an oauth2.Token struct
+	tokenJSON, err := json.Marshal(token)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal token: %w", err)
+	}
+
+	// Unmarshals the token into a map
+	err = json.Unmarshal(tokenJSON, &tokenMap)
+	if err != nil {
+		return fmt.Errorf("Unable to unmarshal token: %w", err)
+	}
+
 	// Saves the token to redis
-	err := redisclient.Rdb.HSet(context.Background(), redisKey, token).Err()
+	err = redisclient.Rdb.HSet(context.Background(), redisKey, tokenMap).Err()
 	if err != nil {
 		return fmt.Errorf("Unable to save token to redis: %w", err)
 	}
