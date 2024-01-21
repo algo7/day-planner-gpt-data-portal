@@ -266,7 +266,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
 	switch provider {
 	case "google":
-		b, err := os.ReadFile("./credentials/google_device_credentials.json")
+		b, err := os.ReadFile("./credentials/google_credentials.json")
 		if err != nil {
 			log.Printf("Unable to read client secret file: %v", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
@@ -317,7 +317,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 		log.Printf("Unable to marshal token: %v", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-	log.Println(tokenJSON)
+	log.Println(string(tokenJSON))
 
 	return c.RedirectToRoute("oauth_success", nil, 302)
 }
