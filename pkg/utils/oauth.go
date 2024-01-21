@@ -196,6 +196,11 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 		return nil, fmt.Errorf("Unable to retrieve token from redis: %w", err)
 	}
 
+	// If the token is not found in redis, return an error
+	if len(token) == 0 {
+		return nil, redis.Nil
+	}
+
 	// Marshals the token into a JSON object in order to unmarshal it into an oauth2.Token struct
 	tokenJSON, err := json.Marshal(token)
 	if err != nil {

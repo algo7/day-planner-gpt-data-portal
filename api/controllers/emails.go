@@ -27,13 +27,13 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 	if err != nil {
 
 		// Redis related errors that are not due to the token key not being found
-		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
+		if strings.Contains(err.Error(), "redis") && err != redis.Nil {
 			log.Printf("Error getting emails due to redis connection: %v", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		// Redis related errors that are due to the token key not being found
-		if strings.Contains(err.Error(), redis.Nil.Error()) {
+		if err == redis.Nil {
 			log.Println("Access token not found in redis")
 			return c.RedirectToRoute("outlook_auth", nil, 302)
 		}
@@ -62,15 +62,15 @@ func GetGmailEmails(c *fiber.Ctx) error {
 	if err != nil {
 
 		// Redis related errors that are not due to the token key not being found
-		if strings.Contains(err.Error(), "redis") && !strings.Contains(err.Error(), redis.Nil.Error()) {
+		if strings.Contains(err.Error(), "redis") && err != redis.Nil {
 			log.Printf("Error getting emails due to redis connection: %v", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		// Redis related errors that are due to the token key not being found
-		if strings.Contains(err.Error(), redis.Nil.Error()) {
-			log.Printf("Token not found in redis")
-			return c.RedirectToRoute("google_auth", nil, 302)
+		if err == redis.Nil {
+			log.Println("Access token not found in redis")
+			return c.RedirectToRoute("outlook_auth", nil, 302)
 		}
 
 		// Non-redis related errors
