@@ -12,6 +12,10 @@ services:
       dockerfile: Dockerfile
     environment:
       REDIS_HOST: redis:6379
+    develop:
+      watch:
+        - action: rebuild
+          path: ./**/*.go
     volumes:
       # The credentials folder is mounted to the container
       - type: bind
