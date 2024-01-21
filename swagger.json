@@ -40,82 +40,6 @@
                 }
             }
         },
-        "/google": {
-            "get": {
-                "description": "Retrieves emails from the user's Gmail account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Emails"
-                ],
-                "summary": "Get Gmail Emails",
-                "responses": {
-                    "200": {
-                        "description": "List of Gmail emails",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to Google authentication if the access token is missing or invalid",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/outlook": {
-            "get": {
-                "description": "Retrieves emails from the user's Outlook account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Emails"
-                ],
-                "summary": "Get Outlook Emails",
-                "responses": {
-                    "200": {
-                        "description": "List of Outlook emails",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/success": {
             "get": {
                 "description": "Returns a page to show that the oauth authentication was successful.",
@@ -444,6 +368,82 @@
                     },
                     "500": {
                         "description": "Unable to read client secret file or parse it to config",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/email/google": {
+            "get": {
+                "description": "Retrieves emails from the user's Gmail account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Gmail Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Gmail emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Google authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/email/outlook": {
+            "get": {
+                "description": "Retrieves emails from the user's Outlook account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "summary": "Get Outlook Emails",
+                "responses": {
+                    "200": {
+                        "description": "List of Outlook emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
                         "schema": {
                             "type": "string"
                         }
