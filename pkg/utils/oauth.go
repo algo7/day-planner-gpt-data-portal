@@ -202,7 +202,8 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 	}
 
 	// Unmarshals the token into an oauth2.Token struct
-	var tok *oauth2.Token
+	tok := &oauth2.Token{}
+
 	err = json.Unmarshal(tokenJSON, tok)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to unmarshal token: %w", err)
