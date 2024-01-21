@@ -83,17 +83,21 @@ The API key is stored in Redis and the TTL will get extended by 7 days everytime
 
 ### Obtaining a new API Key after Expiration or Revocation
 Since the initial password has been set to an empty string the 1st time you generated the API Key, to obtain a new one, you have 2 options:
-1. Delete the `initial_password` key in Redis, restart the application (a new initial password will be generated), then go to the `/apikey` endpoint in the browser to obtain a new API key
-2. Set the `initial_password` key in Redis to a non-empty string and then go to the `/apikey` endpoint in the browser to obtain a new API key using the new password
+1. Delete the `initial_password` key in Redis, restart the application (a new initial password will be generated), then go to the `/v1/auth/internal/apikey` endpoint in the browser to obtain a new API key
+2. Set the `initial_password` key in Redis to a non-empty string and then go to the `/v1/auth/internal/apikey` endpoint in the browser to obtain a new API key using the new password
 
 ## How to Interact with the API
 1. Start the application
 2. Check the startup logs for the initial password
 3. Visit the `/v1/auth/internal/apikey` endpoint in the browser and enter the initial password to obtain the API key
-4. Visit the `/v1/auth/oauth/outlook/auth` endpoint in the browser to start the Outlook OAuth2 flow
-5. Visit the `/v1/auth/oauth/google/auth` endpoint in the browser to start the Google OAuth2 flow
-6. Visit the `/v1/email/outlook` using Postman or any other API client and send the API key in the header as `X-API-KEY`
-7. Visit the `/v1/email/google` using Postman or any other API client and send the API key in the header as `X-API-KEY`
+4. Call the `/v1/auth/oauth/auth` endpoint using an API client using the query parameter `provider` with the value `google` or `outlook`
+   - The endpoint will present you with a link to the OAuth2 provider to complete the authentication flow 
+   - Complete the authentication flow
+5. Call the `/v1/email/outlook` using using an API client and send the API key in the header as `X-API-KEY` to get the latest unread emails from Outlook
+6. Call the `/v1/email/google` using using an API client and send the API key in the header as `X-API-KEY` to get the latest unread emails from Gmail
+7. Call the `/v1/auth/oauth/refresh` using an API client using the query parameter with the value `google` or `outlook` to refresh the token.
+   - The endpoint will replace the token object in Redis with the new token object
+   - The endpoint effectively revokes the old token and replaces it with a new one
 
 ## Limitations
 The application will most likely not work with work or school accounts unless 2 requirements are met:
