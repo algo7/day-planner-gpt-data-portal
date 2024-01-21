@@ -14,6 +14,7 @@ import (
 	"time"
 
 	redisclient "github.com/algo7/day-planner-gpt-data-portal/internal/redis"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -115,19 +116,6 @@ func GenerateOauthURL(config *oauth2.Config, flowType string) (string, string, e
 	return "", "", fmt.Errorf("invalid flow type: %s", flowType)
 }
 
-// GetClient Retrieve a token, saves the token, then returns the generated client.
-func GetClient(config *oauth2.Config, redisKey string) (*http.Client, error) {
-	// The file token.json stores the user's access and refresh tokens, and is
-	// created automatically when the authorization flow completes for the first
-	// time.
-	tok, err := RetrieveToken(redisKey)
-	if err != nil {
-		return nil, fmt.Errorf("unable to get token from redis: %w", err)
-	}
-
-	return config.Client(context.Background(), tok), nil
-}
-
 // PollToken Poll Google's authorization server to retrieve the token
 func PollToken(config *oauth2.Config, deviceCode string) (*oauth2.Token, error) {
 
@@ -210,6 +198,10 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 	// Retrieves the token from redis
 	token, err := redisclient.Rdb.HGetAll(context.Background(), redisKey).Result()
 	if err != nil {
+		if err == redis.Nil {
+			return nil, err
+		}
+
 		return nil, fmt.Errorf("Unable to retrieve token from redis: %w", err)
 	}
 

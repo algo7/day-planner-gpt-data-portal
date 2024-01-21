@@ -28,10 +28,12 @@ func GetEmails() ([]integrations.Email, error) {
 		return nil, fmt.Errorf("Unable to parse client secret file to config: %w", err)
 	}
 
-	client, err := utils.GetClient(config, "google")
+	token, err := utils.RetrieveToken("google")
 	if err != nil {
-		return nil, fmt.Errorf("unable to get OAuth client: %w", err)
+		return nil, err
 	}
+
+	client := config.Client(context.Background(), token)
 
 	srv, err := gmail.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {

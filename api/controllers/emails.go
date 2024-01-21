@@ -56,6 +56,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 // @Failure 500 {string} string "Unable to retrieve emails due to server error or token retrieval issue"
 // @Router /v1/email/google [get]
 func GetGmailEmails(c *fiber.Ctx) error {
+
 	emails, err := gmail.GetEmails()
 
 	if err != nil {
