@@ -171,13 +171,7 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey strin
 	// Converts authorization code into a token
 	tok, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve token from web: %w", err)
-	}
-
-	// Saves the token to redis
-	err = SaveToken(redisKey, tok)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to save token to redis: %w", err)
+		return tok, fmt.Errorf("Unable to retrieve token from web: %w", err)
 	}
 
 	return tok, nil

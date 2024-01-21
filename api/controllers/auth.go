@@ -64,34 +64,47 @@ func GetOAuthCallbackOutlook(c *fiber.Ctx) error {
 	code := c.Query("code")
 	state := c.Query("state")
 	if code == "" {
-		return c.SendString("No authorization code found in the request")
+		return c.Status(fiber.StatusBadRequest).SendString("No authorization code found in the request")
 	}
 
 	// Check if the state token is valid
 	if state == "" {
-		return c.SendString("No state token found in the request")
+		return c.Status(fiber.StatusBadRequest).SendString("No state token found in the request")
 	}
 
 	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return c.SendString("Invalid state token")
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
 		}
-		return c.SendString(fmt.Sprintf("Error getting state token from Redis: %v", err))
+		log.Printf("Error getting state token from Redis: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error getting state token")
 	}
 
 	if stateToken != state {
-		return c.SendString("Invalid state token")
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
 	}
 
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
 	if err != nil {
-		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
+		log.Printf("Error loading OAuth2 config: %v", err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error loading OAuth2 config")
 	}
 
 	// Exchange the code for an access token here
-	utils.ExchangeCodeForToken(config, code, "outlook")
+	tok, err := utils.ExchangeCodeForToken(config, code, "outlook")
+	if err != nil {
+		log.Printf("Error exchanging code for token: %v", err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
+	}
+
+	// Save the token in Redis
+	err = utils.SaveToken("outlook", tok)
+	if err != nil {
+		log.Printf("Error saving token: %v", err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error saving token")
+	}
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 	return c.RedirectToRoute("oauth_success", nil, 302)
@@ -144,30 +157,30 @@ func GetAuthGoogle(c *fiber.Ctx) error {
 // @Router /v1/auth/oauth/google/callback [get]
 func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
 
-	// Get the authorization code from the request
+	// Get the authorization code and the state token from the request
 	code := c.Query("code")
-
-	// Get the state token from the request
 	state := c.Query("state")
+
 	if code == "" {
-		return c.SendString("No authorization code found in the request")
+		return c.Status(fiber.StatusBadRequest).SendString("No authorization code found in the request")
 	}
 
 	// Check if the state token is valid
 	if state == "" {
-		return c.SendString("No state token found in the request")
+		return c.Status(fiber.StatusBadRequest).SendString("No state token found in the request")
 	}
 
 	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return c.SendString("Invalid state token")
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
 		}
-		return c.SendString(fmt.Sprintf("Error getting state token from Redis: %v", err))
+		log.Printf("Error getting state token from Redis: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error getting state token")
 	}
 
 	if stateToken != state {
-		return c.SendString("Invalid state token")
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
 	}
 
 	b, err := os.ReadFile("./credentials/google_credentials.json")
