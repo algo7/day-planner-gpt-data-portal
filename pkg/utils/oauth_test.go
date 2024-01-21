@@ -38,7 +38,7 @@ func TestOAuth2ConfigFromJSON(t *testing.T) {
 	tempFile.Close()
 
 	// Test the function
-	config, err := OAuth2ConfigFromJSON(tempFile.Name())
+	config, err := oauth2ConfigFromJSON(tempFile.Name())
 	if err != nil {
 		t.Fatalf("Failed to get OAuth2 config from JSON: %v", err)
 	}

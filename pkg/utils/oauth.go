@@ -29,8 +29,76 @@ type OAuth2Config struct {
 	TokenURL     string   `json:"token_url"`
 }
 
-// OAuth2ConfigFromJSON reads a JSON file and returns an OAuth2 config
-func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
+// ValidProviders is a slice of valid OAuth2 providers
+var ValidProviders = map[string]bool{
+	"google":  true,
+	"outlook": true,
+}
+
+// GenerateStateToken generates a random state token for OAuth2 authorization
+func generateStateToken(provider string) (string, error) {
+	b := make([]byte, 16) // 16 bytes equals 128 bits
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	// Calculate the SHA-256 hash sum of the 'b' byte slice
+	sha256Hash := sha256.New()
+	_, err = io.WriteString(sha256Hash, string(b))
+	if err != nil {
+		return "", err
+	}
+
+	// Convert the hash sum to a hexadecimal string
+	hashSum := fmt.Sprintf("%s-%x", provider, sha256Hash.Sum(nil))
+
+	return hashSum, nil
+}
+
+// GetOAuth2Config returns the OAuth2 config for the specified provider
+func GetOAuth2Config(provider string) (*oauth2.Config, error) {
+
+	// Initialize the OAuth2 config variable
+	authConfig := &oauth2.Config{}
+
+	switch provider {
+
+	case "google":
+
+		// Load google credentials from JSON file
+		b, err := os.ReadFile("./credentials/google_credentials.json")
+		if err != nil {
+			return nil, fmt.Errorf("Unable to read client secret file: %v", err)
+		}
+
+		// If modifying these scopes, delete your previously saved token.json.
+		config, err := google.ConfigFromJSON(b, "email")
+		if err != nil {
+			return nil, fmt.Errorf("Unable to parse client secret file to config: %v", err)
+		}
+
+		authConfig = config
+
+	case "outlook":
+
+		// Load outlook credentials from JSON file
+		config, err := oauth2ConfigFromJSON("./credentials/outlook_credentials.json")
+		if err != nil {
+			return nil, fmt.Errorf("Error loading OAuth2 config: %v", err)
+		}
+
+		authConfig = config
+
+	default:
+		return nil, fmt.Errorf("invalid provider: %s", provider)
+	}
+
+	return authConfig, nil
+}
+
+// oauth2ConfigFromJSON reads a JSON file and returns an OAuth2 config
+func oauth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 
 	file, err := os.ReadFile(fileName)
 	if err != nil {
@@ -53,27 +121,6 @@ func OAuth2ConfigFromJSON(fileName string) (*oauth2.Config, error) {
 			TokenURL: cfg.TokenURL,
 		},
 	}, nil
-}
-
-// GenerateStateToken generates a random state token for OAuth2 authorization
-func generateStateToken(provider string) (string, error) {
-	b := make([]byte, 16) // 16 bytes equals 128 bits
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-
-	// Calculate the SHA-256 hash sum of the 'b' byte slice
-	sha256Hash := sha256.New()
-	_, err = io.WriteString(sha256Hash, string(b))
-	if err != nil {
-		return "", err
-	}
-
-	// Convert the hash sum to a hexadecimal string
-	hashSum := fmt.Sprintf("%s-%x", provider, sha256Hash.Sum(nil))
-
-	return hashSum, nil
 }
 
 // GenerateOauthURL prints the URL to visit to authorize the application
@@ -178,10 +225,10 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string) (*oauth2.Token
 }
 
 // RetrieveToken retrieves the OAuth token from redis.
-func RetrieveToken(redisKey string) (*oauth2.Token, error) {
+func RetrieveToken(provider string) (*oauth2.Token, error) {
 
 	// Retrieves the token from redis
-	token, err := redisclient.Rdb.HGetAll(context.Background(), redisKey).Result()
+	token, err := redisclient.Rdb.HGetAll(context.Background(), provider).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, err
@@ -213,7 +260,7 @@ func RetrieveToken(redisKey string) (*oauth2.Token, error) {
 }
 
 // SaveToken saves the token to redis.
-func SaveToken(redisKey string, token *oauth2.Token) error {
+func SaveToken(provider string, token *oauth2.Token) error {
 
 	// Calculates the time to live for the token
 	ttl := token.Expiry.Sub(time.Now().UTC())
@@ -234,19 +281,19 @@ func SaveToken(redisKey string, token *oauth2.Token) error {
 	}
 
 	// Saves the token to redis
-	err = redisclient.Rdb.HSet(context.Background(), redisKey, tokenMap).Err()
+	err = redisclient.Rdb.HSet(context.Background(), provider, tokenMap).Err()
 	if err != nil {
 		return fmt.Errorf("Unable to save token to redis: %w", err)
 	}
 
 	// Sets the time to live for the token
-	err = redisclient.Rdb.Expire(context.Background(), redisKey, ttl).Err()
+	err = redisclient.Rdb.Expire(context.Background(), provider, ttl).Err()
 
 	return nil
 }
 
 // UpdateToken updates the token in redis.
-func UpdateToken(redisKey string, token *oauth2.Token) error {
+func UpdateToken(provider string, token *oauth2.Token) error {
 
 	// Calculates the time to live for the token
 	ttl := token.Expiry.Sub(time.Now().UTC())
@@ -267,13 +314,13 @@ func UpdateToken(redisKey string, token *oauth2.Token) error {
 	}
 
 	// Saves the token to redis
-	err = redisclient.Rdb.HSet(context.Background(), redisKey, tokenMap).Err()
+	err = redisclient.Rdb.HSet(context.Background(), provider, tokenMap).Err()
 	if err != nil {
 		return fmt.Errorf("Unable to save token to redis: %w", err)
 	}
 
 	// Sets the time to live for the token
-	err = redisclient.Rdb.Expire(context.Background(), redisKey, ttl).Err()
+	err = redisclient.Rdb.Expire(context.Background(), provider, ttl).Err()
 
 	return nil
 }
@@ -291,39 +338,3 @@ func GetTokenFromRefreshToken(config *oauth2.Config, refreshToken string) (*oaut
 	}
 	return tok, nil
 }
-
-// Deprecated
-// // TokenFromFile retrieves a Token from a given file path.
-// func TokenFromFile(fileName string) (*oauth2.Token, error) {
-
-// 	data, err := os.ReadFile(fileName)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("unable to read token file: %w", err)
-// 	}
-
-// 	var tok oauth2.Token
-// 	err = json.Unmarshal(data, &tok)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("unable to unmarshal token: %w", err)
-// 	}
-
-// 	return &tok, nil
-// }
-
-// // Saves a token to a file path.
-// func saveToken(path string, token *oauth2.Token) error {
-
-// 	log.Printf("Saving credential file to: %s\n", path)
-// 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-// 	if err != nil {
-// 		return fmt.Errorf("Unable to cache oauth token: %w", err)
-// 	}
-// 	defer f.Close()
-
-// 	err = json.NewEncoder(f).Encode(token)
-// 	if err != nil {
-// 		return fmt.Errorf("Unable to encode token: %w", err)
-// 	}
-
-// 	return nil
-// }

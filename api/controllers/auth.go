@@ -13,7 +13,6 @@ import (
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 )
@@ -34,7 +33,7 @@ import (
 func GetAuthOutlook(c *fiber.Ctx) error {
 
 	// Load the OAuth2 config from the JSON file
-	config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
+	config, err := utils.GetOAuth2Config("outlook")
 	if err != nil {
 		return c.SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
 	}
@@ -126,34 +125,17 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 	// Parses the state token base on - as the delimiter to get the provider
 	provider := strings.Split(state, "-")[0]
 
-	// Empty OAuth2 config to be filled based on the provider
-	authConfig := &oauth2.Config{}
-
-	switch provider {
-	case "google":
-		// Load the OAuth2 config from the JSON file
-		b, err := os.ReadFile("./credentials/google_credentials.json")
-		if err != nil {
-			c.SendString(fmt.Sprintf("Unable to read client secret file: %v", err))
-		}
-
-		// If modifying these scopes, delete your previously saved token.json.
-		config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-		if err != nil {
-			c.SendString(fmt.Sprintf("Unable to parse client secret file to config: %v", err))
-		}
-		// Populate the authConfig variable
-		authConfig = config
-	case "outlook":
-		// Load the OAuth2 config from the JSON file
-		config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
-		if err != nil {
-			log.Printf("Error loading OAuth2 config: %v", err)
-			c.Status(fiber.StatusInternalServerError).SendString("Error loading OAuth2 config")
-		}
-		authConfig = config
-	default:
+	// Check if the provider is valid
+	_, ok := utils.ValidProviders[provider]
+	if !ok {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
+	}
+
+	// Empty OAuth2 config to be filled based on the provider
+	authConfig, err := utils.GetOAuth2Config(provider)
+	if err != nil {
+		log.Printf("Error getting OAuth2 config: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error getting OAuth2 config")
 	}
 
 	// Exchange the code for an access token here
@@ -251,51 +233,28 @@ func GetAuthGoogleDevice(c *fiber.Ctx) error {
 func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
 	provider := c.Query("provider")
-	providerConfig := &oauth2.Config{}
-	refreshToken := ""
 
-	switch provider {
-	case "google":
-		b, err := os.ReadFile("./credentials/google_credentials.json")
-		if err != nil {
-			log.Printf("Unable to read client secret file: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
-		}
-
-		// If modifying these scopes, delete your previously saved token.json.
-		config, err := google.ConfigFromJSON(b, "email")
-		if err != nil {
-			log.Printf("Unable to parse client secret file to config: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
-		}
-
-		tok, err := utils.RetrieveToken("google")
-		if err != nil {
-			log.Printf("Error getting token: %v", err)
-			return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
-		}
-		refreshToken = tok.RefreshToken
-		providerConfig = config
-
-	case "outlook":
-		config, err := utils.OAuth2ConfigFromJSON("./credentials/outlook_credentials.json")
-		if err != nil {
-			log.Printf("Error loading OAuth2 config: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
-		}
-		tok, err := utils.RetrieveToken("outlook")
-		if err != nil {
-			log.Printf("Error getting token: %v", err)
-			return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
-		}
-		refreshToken = tok.RefreshToken
-		providerConfig = config
-	default:
+	// Check if the provider is valid
+	_, ok := utils.ValidProviders[provider]
+	if !ok {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
 	}
 
+	// Get the OAuth2 config for the provider
+	providerConfig, err := utils.GetOAuth2Config(provider)
+	if err != nil {
+		log.Printf("Error getting OAuth2 config: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Error getting OAuth2 config")
+	}
+
+	tok, err := utils.RetrieveToken(provider)
+	if err != nil {
+		log.Printf("Error getting token: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
+	}
+
 	// Get the token from the refresh token
-	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, refreshToken)
+	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, tok.RefreshToken)
 	if err != nil {
 		log.Printf("Error getting token from refresh token: %v", err)
 		return c.Status(fiber.StatusInternalServerError).SendString("Error getting token from refresh token")
