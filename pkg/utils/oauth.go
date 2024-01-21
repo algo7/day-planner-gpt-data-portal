@@ -174,17 +174,8 @@ func ExchangeCodeForToken(config *oauth2.Config, authCode string, redisKey strin
 		return nil, fmt.Errorf("Unable to retrieve token from web: %w", err)
 	}
 
-	// Marshals the token into a JSON object
-	tokenJSON, err := json.Marshal(tok)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to marshal token: %w", err)
-	}
-
-	// Calculates the time to live for the token
-	ttl := tok.Expiry.Sub(time.Now().UTC())
-
 	// Saves the token to redis
-	err = redisclient.Rdb.Set(context.Background(), redisKey, tokenJSON, ttl).Err()
+	err = SaveToken(redisKey, tok)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to save token to redis: %w", err)
 	}
