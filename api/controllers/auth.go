@@ -195,7 +195,18 @@ func GetOAuthCallbackGoogle(c *fiber.Ctx) error {
 	}
 
 	// Exchange the code for an access token here
-	utils.ExchangeCodeForToken(config, code)
+	tok, err := utils.ExchangeCodeForToken(config, code)
+	if err != nil {
+		log.Printf("Error exchanging code for token: %v", err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
+	}
+
+	// Save the token in Redis
+	err = utils.SaveToken("google", tok)
+	if err != nil {
+		log.Printf("Error saving token: %v", err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error saving token")
+	}
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 	return c.RedirectToRoute("oauth_success", nil, 302)
