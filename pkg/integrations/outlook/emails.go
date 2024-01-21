@@ -32,7 +32,7 @@ func GetEmails() ([]integrations.Email, error) {
 
 	accessToken, err := utils.RetrieveToken("outlook")
 	if err != nil {
-		return nil, fmt.Errorf("Error getting token from redis: %w", err)
+		return nil, err
 	}
 
 	// Create an instance of CustomAuthenticationProvider with the access token
