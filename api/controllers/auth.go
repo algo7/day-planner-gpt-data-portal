@@ -46,7 +46,7 @@ func GetAuthOutlook(c *fiber.Ctx) error {
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
+	return c.Status(fiber.StatusContinue).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL %s", authURL))
 }
 
 // GetAuthGoogle returns the auth page for Google
