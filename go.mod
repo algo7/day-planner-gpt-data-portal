@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/contrib/swagger v1.1.1
 	github.com/gofiber/fiber/v2 v2.52.0
 	github.com/gofiber/template/html/v2 v2.1.0
-	github.com/microsoft/kiota-abstractions-go v1.5.5
+	github.com/microsoft/kiota-abstractions-go v1.5.6
 	github.com/microsoftgraph/msgraph-sdk-go v1.30.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.0.1
 	github.com/redis/go-redis/v9 v9.4.0
@@ -28,7 +28,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-logr/logr v1.3.0 // indirect
+	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.21.4 // indirect
 	github.com/go-openapi/errors v0.20.3 // indirect
@@ -71,9 +71,9 @@ require (
 	go.mongodb.org/mongo-driver v1.11.3 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1 // indirect
-	go.opentelemetry.io/otel v1.21.0 // indirect
-	go.opentelemetry.io/otel/metric v1.21.0 // indirect
-	go.opentelemetry.io/otel/trace v1.21.0 // indirect
+	go.opentelemetry.io/otel v1.22.0 // indirect
+	go.opentelemetry.io/otel/metric v1.22.0 // indirect
+	go.opentelemetry.io/otel/trace v1.22.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
