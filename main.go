@@ -16,7 +16,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// @title Fiber Example API
+// @title Day Planner GPT Data Portal API
 // @version 1.0
 // @description day-planner-gpt-data-portal
 // @termsOfService http://swagger.io/terms/
@@ -24,7 +24,7 @@ import (
 // @contact.email tools@algo7.tools
 // @license.name The GNU General Public License v3.0
 // @license.url https://raw.githubusercontent.com/algo7/day-planner-gpt-data-portal/main/LICENSE
-// @host localhost:3000
+// @host gptportal.algo7.tools
 // @BasePath /
 func main() {
 
