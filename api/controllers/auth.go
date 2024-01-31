@@ -45,10 +45,12 @@ func GetOAtuh(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error Checking Access Token Status")
 	}
 
-	// Calculate how many minutes are left until the token expires and round it up to the nearest minute
-	minutesLeft := int(token.Expiry.Sub(time.Now()).Minutes() + 1)
-	if minutesLeft > 0 {
-		return c.Status(200).SendString(fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft))
+	if token != nil {
+		// Calculate how many minutes are left until the token expires and round it up to the nearest minute
+		minutesLeft := int(token.Expiry.Sub(time.Now()).Minutes() + 1)
+		if minutesLeft > 0 {
+			return c.Status(200).SendString(fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft))
+		}
 	}
 
 	// Load the OAuth2 config from the JSON file
