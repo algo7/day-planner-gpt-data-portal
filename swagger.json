@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "day-planner-gpt-data-portal",
-        "title": "Fiber Example API",
+        "title": "Day Planner GPT Data Portal API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Algo7",
@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:3000",
+    "host": "gptportal.algo7.tools",
     "basePath": "/",
     "paths": {
         "/": {
