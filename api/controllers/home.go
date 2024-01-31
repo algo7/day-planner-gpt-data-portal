@@ -9,9 +9,9 @@ import (
 // @Description Returns the home page of the application.
 // @Tags Pages
 // @Accept */*
-// @Produce plain
-// @Success 200 {string} string "Hello, World!"
+// @Produce json
+// @Success 200 {object} map[string]string "data: 'Hello, World!'"
 // @Router / [get]
 func GetHome(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+	return c.JSON(map[string]string{"data": "Hello, World!"})
 }
