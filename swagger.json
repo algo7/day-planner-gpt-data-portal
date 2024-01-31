@@ -24,7 +24,7 @@
                     "*/*"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
                     "Pages"
@@ -32,9 +32,12 @@
                 "summary": "Home Page",
                 "responses": {
                     "200": {
-                        "description": "Hello, World!",
+                        "description": "data: 'Hello, World!'",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
