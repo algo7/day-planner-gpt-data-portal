@@ -203,15 +203,15 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
  */
 
 // GetAPIKey returns a page to get the initial API key
-// @Summary Get API Key Page
-// @Description Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.
+// @Summary Get API Key
+// @Description This endpoint checks if the initial password exists in Redis and if it does, renders the API key form. If the initial password does not exist or has been used, it redirects to the home page or prompts the user to restart the server.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{} "Render the API key form page"
-// @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
-// @Failure 500 {string} string "Error getting initial password from Redis"
-// @Router /v1/auth/internal/apikey [get]
+// @Success 200 {object} string "Renders the API key form if the initial password exists and has not been used"
+// @Success 307 {string} string "Redirects to the home page if the initial password has been used"
+// @Failure 500 {object} map[string]string "Returns an error message if the initial password does not exist or there was an error getting the initial password"
+// @Router /v1/auth/internal/apikey" [get]
 func GetAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password exists in Redis

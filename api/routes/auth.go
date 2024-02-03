@@ -7,7 +7,7 @@ import (
 
 // AuthRoutes is the route handler for the calendars API.
 func AuthRoutes(app *fiber.App) {
-	app.Get("/v1/auth/oauth/google/device", controllers.GetAuthGoogleDevice).Name("google_auth_device")
+	// app.Get("/v1/auth/oauth/google/device", controllers.GetAuthGoogleDevice).Name("google_auth_device")
 	app.Get("/v1/auth/oauth", controllers.GetOAtuh).Name("oauth_auth")
 	app.Get("/v1/auth/oauth/callback", controllers.GetOAuthCallBack).Name("oauth_callback")
 	app.Get("/v1/auth/oauth/refresh", controllers.GetNewTokenFromRefreshToken).Name("oauth_refresh")
