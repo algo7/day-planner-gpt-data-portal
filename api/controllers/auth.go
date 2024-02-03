@@ -221,16 +221,16 @@ func GetAPIKey(c *fiber.Ctx) error {
 		if err == redis.Nil {
 			return c.
 				Status(fiber.StatusInternalServerError).
-				SendString("Initial password does not exist. Please restart the server to generate a new password.")
+				JSON(fiber.Map{"error": "Initial password does not exist. Please restart the server to generate a new password"})
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting initial password"})
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
 	if initialPassword == "" {
-		return c.RedirectToRoute("home", nil, 302)
+		return c.RedirectToRoute("home", nil, fiber.StatusTemporaryRedirect)
 	}
 
 	return c.Render("apikey_form", fiber.Map{})
