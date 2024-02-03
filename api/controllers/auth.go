@@ -148,14 +148,15 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
  */
 
 // GetNewTokenFromRefreshToken handles the redirect from the OAuth2 provider
-// @Summary OAuth2 Redirect for Google
-// @Description Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.
+// @Summary Get New Token From Refresh Token
+// @Description This endpoint retrieves a new access token using the refresh token for the specified provider.
 // @Tags OAuth2
 // @Accept json
 // @Produce json
-// @Param provider query string true "Provider to get the new token from the refresh token"
-// @Failure 500 {string} string "Internal server error"
-// @Success 302 {string} string "Redirect to the auth success page"
+// @Param provider query string true "Name of the OAuth2 provider to get the new access token for"
+// @Success 307 {string} string "Redirects to the OAuth success route on successful token retrieval and update"
+// @Failure 400 {object} map[string]string "Returns an error message if the provided OAuth2 provider is invalid"
+// @Failure 500 {object} map[string]string "Returns an error message if there was an error getting the OAuth2 configuration, retrieving the token, getting the new token from the refresh token, or updating the token"
 // @Router /v1/auth/oauth/refresh [get]
 func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
@@ -164,37 +165,37 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
 	}
 
 	// Get the OAuth2 config for the provider
 	providerConfig, err := utils.GetOAuth2Config(provider)
 	if err != nil {
 		log.Printf("Error getting OAuth2 config: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error getting OAuth2 config")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting OAuth2 config"})
 	}
 
 	tok, err := utils.RetrieveToken(provider)
 	if err != nil {
 		log.Printf("Error getting token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Token not found or has fully expired")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Access token not found or has expired"})
 	}
 
 	// Get the token from the refresh token
 	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, tok.RefreshToken)
 	if err != nil {
 		log.Printf("Error getting token from refresh token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error getting token from refresh token")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting access token from refresh token"})
 	}
 
 	// Update the token in Redis
 	err = utils.UpdateToken(provider, newTok)
 	if err != nil {
 		log.Printf("Error updating token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error updating token")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error updating access token"})
 	}
 
-	return c.RedirectToRoute("oauth_success", nil, 302)
+	return c.RedirectToRoute("oauth_success", nil, fiber.StatusTemporaryRedirect)
 }
 
 /*
