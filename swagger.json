@@ -378,6 +378,9 @@
             "type": "object",
             "properties": {
                 "data": {},
+                "error": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "integer"
                 }
