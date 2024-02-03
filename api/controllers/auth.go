@@ -237,16 +237,15 @@ func GetAPIKey(c *fiber.Ctx) error {
 }
 
 // PostAPIKey generates and returns a new API key
-// @Summary Generate API Key
-// @Description Generates a new API key and stores it in Redis with a TTL of 7 days. If the initial password has expired, it redirects to the home page.
+// @Summary Post API Key
+// @Description This endpoint checks if the initial password exists in Redis, compares it with the password from the form, generates an API key if the passwords match, saves the API key in Redis with a TTL of 7 days, and sets the initial password to an empty string.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param password formData string true "Password for API key generation"
-// @Success 200 {string} string "API key: {apiKey}"
-// @Failure 302 {string} string "Redirect to the home page if the initial password has expired"
-// @Failure 400 {string} string "Incorrect password"
-// @Failure 500 {string} string "Error getting initial password or generating API key"
+// @Param password formData string true "Password from the form"
+// @Success 200 {object} map[string]string "Returns the generated API key"
+// @Failure 400 {object} map[string]string "Returns an error message if the password from the form does not match the initial password"
+// @Failure 500 {object} map[string]string "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password"
 // @Router /v1/auth/internal/apikey [post]
 func PostAPIKey(c *fiber.Ctx) error {
 
