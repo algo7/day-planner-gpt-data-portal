@@ -71,16 +71,16 @@ func GetOAtuh(c *fiber.Ctx) error {
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider
-// @Summary Handles OAuth2 Redirect
-// @Description Handles the callback from the give OAuth2 provider, exchanging the authorization code for an access token.
+// @Summary OAuth2 Callback Endpoint
+// @Description This endpoint handles the callback from the OAuth2 provider, exchanges the authorization code for an access token, and saves the token.
 // @Tags OAuth2
 // @Accept json
 // @Produce json
-// @Param code query string true "Authorization code from Google OAuth2 provider"
-// @Success 302 {string} string "Redirect to a predefined route after successful authorization"
-// @Failure 400 {string} string "No authorization code found in the request"
-// @Failure 400 {string} string "No state token found in the request"
-// @Failure 500 {string} string "Internal server error"
+// @Param code query string true "Authorization code returned by the OAuth2 provider"
+// @Param state query string true "State token for CSRF protection"
+// @Success 307 {string} string "Redirects to the OAuth success route on successful token exchange and save"
+// @Failure 400 {object} map[string]string "Returns an error message if the authorization code or state token is missing or invalid, or if the OAuth2 provider is invalid"
+// @Failure 500 {object} map[string]string "Returns an error message if there was an error getting the OAuth2 configuration, exchanging the code for a token, or saving the token"
 // @Router /v1/auth/oauth/callback [get]
 func GetOAuthCallBack(c *fiber.Ctx) error {
 
@@ -89,25 +89,25 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	if code == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("No authorization code found in the request")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No authorization code found in the request"})
 	}
 
 	// Check if the state token is valid
 	if state == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("No state token found in the request")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No state token found in the request"})
 	}
 
 	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid state token or state token has expired"})
 		}
 		log.Printf("Error getting state token from Redis: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error getting state token")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting state token"})
 	}
 
 	if stateToken != state {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid state token")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid state token"})
 	}
 
 	// Parses the state token base on - as the delimiter to get the provider
@@ -116,32 +116,32 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
 	}
 
 	// Empty OAuth2 config to be filled based on the provider
 	authConfig, err := utils.GetOAuth2Config(provider)
 	if err != nil {
 		log.Printf("Error getting OAuth2 config: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error getting OAuth2 config")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting OAuth2 config"})
 	}
 
 	// Exchange the code for an access token here
 	tok, err := utils.ExchangeCodeForToken(authConfig, code)
 	if err != nil {
 		log.Printf("Error exchanging code for token: %v", err)
-		c.Status(fiber.StatusInternalServerError).SendString("Error exchanging code for token")
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error exchanging code for access token"})
 	}
 
 	// Save the token in Redis
 	err = utils.SaveToken(provider, tok)
 	if err != nil {
 		log.Printf("Error saving token: %v", err)
-		c.Status(fiber.StatusInternalServerError).SendString("Error saving token")
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error saving access token"})
 	}
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
-	return c.RedirectToRoute("oauth_success", nil, 302)
+	return c.RedirectToRoute("oauth_success", nil, fiber.StatusTemporaryRedirect)
 }
 
 /*
@@ -362,12 +362,12 @@ func PostAPIKey(c *fiber.Ctx) error {
 
 // GetAuthSuccess returns a page to show that the oauth authentication was successful
 // @Summary OAuth2 Success Page
-// @Description Returns a page to show that the oauth authentication was successful.
+// @Description This endpoint returns a success message after successful authentication.
 // @Tags OAuth2
-// @Accept */*
-// @Produce plain
-// @Success 200 {string} string "Auth Success"
-// @Router /success [get]
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string "Returns a success message indicating successful authentication"
+// @Router /v1/auth/success [get]
 func GetAuthSuccess(c *fiber.Ctx) error {
-	return c.Status(200).SendString("Auth Success")
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": "Auth Success"})
 }
