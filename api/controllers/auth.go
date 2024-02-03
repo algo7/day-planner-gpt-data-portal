@@ -255,16 +255,16 @@ func PostAPIKey(c *fiber.Ctx) error {
 	if err != nil {
 		// If the initial password does not exist, warn the user to restart the server to generate a new password.
 		if err == redis.Nil {
-			return c.SendString("Initial password does not exist. Please restart the server to generate a new password.")
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Initial password does not exist. Please restart the server to generate a new password"})
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting initial password"})
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
 	if initialPassword == "" {
-		return c.RedirectToRoute("home", nil, 302)
+		return c.RedirectToRoute("home", nil, fiber.StatusTemporaryRedirect)
 	}
 
 	// Get the password from the form
@@ -272,14 +272,14 @@ func PostAPIKey(c *fiber.Ctx) error {
 
 	// Compare the password with the initial password
 	if password != initialPassword {
-		return c.SendString("Incorrect password")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Incorrect password"})
 	}
 
 	// Generate an API key.
 	apiKey, err := utils.GenerateAPIKey()
 	if err != nil {
 		log.Printf("Error generating API key: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error generating API key"})
 	}
 
 	// Set the API key in Redis with a TTL of 7 days.
@@ -289,18 +289,18 @@ func PostAPIKey(c *fiber.Ctx) error {
 	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("apikey_%s", apiKey), apiKey, ttl).Err()
 	if err != nil {
 		log.Printf("Error saving API key: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error saving API key"})
 	}
 
 	// Set the initial password to an empty string
 	err = redisclient.Rdb.Set(context.Background(), "initial_password", "", 0).Err()
 	if err != nil {
 		log.Printf("Error Deleting the initial password: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error Deleting the initial password"})
 	}
 
 	// Return the API key.
-	return c.SendString(fmt.Sprintf("API key: %s", apiKey))
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": fmt.Sprintf("API key: %s", apiKey)})
 }
 
 /*
