@@ -35,38 +35,38 @@ func GetOAtuh(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid provider")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
 	}
 
 	// Check Access Token Status
 	token, err := utils.RetrieveToken(provider)
 	if err != nil && err != redis.Nil {
 		log.Printf("Error getting token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Error Checking Access Token Status")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error Checking Access Token Status"})
 	}
 
 	if token != nil {
 		// Calculate how many minutes are left until the token expires and round it up to the nearest minute
 		minutesLeft := int(token.Expiry.Sub(time.Now()).Minutes() + 1)
 		if minutesLeft > 0 {
-			return c.Status(200).SendString(fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft))
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft)})
 		}
 	}
 
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.GetOAuth2Config(provider)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error loading OAuth2 config: %v", err))
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Error loading OAuth2 config: %v", err)})
 	}
 
 	// Get the URL to visit to authorize the application
 	authURL, _, err := utils.GenerateOauthURL(config, provider, "PCKE")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Error generating OAuth2 URL: %v", err))
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Error generating OAuth2 URL: %v", err)})
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.Status(200).SendString(fmt.Sprintf("Please complete the authorization workflow by going to the following URL:\n %s", authURL))
+	return c.Status(200).JSON(fiber.Map{"data": fmt.Sprintf("Please complete the authorization workflow by going to the following URL:\n %s", authURL)})
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider

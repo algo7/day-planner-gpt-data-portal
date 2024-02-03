@@ -13,9 +13,7 @@ import (
 // @Success 200 {object} APIResponse
 // @Router / [get]
 func GetHome(c *fiber.Ctx) error {
-	response := APIResponse{
-		Status: 200,
-		Data:   "Welcome to the Day Planner GPT Data Portal API",
-	}
-	return c.JSON(response)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data": "Welcome to the Day Planner GPT Data Portal API!",
+	})
 }
