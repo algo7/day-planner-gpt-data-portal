@@ -19,14 +19,15 @@ import (
  */
 
 // GetOAtuh returns the auth URL for the given OAuth2 provider
-// @Summary Get Outlook Auth Page
-// @Description Redirects to the Outlook OAuth2 authentication page.
+// @Summary Get OAuth2 Authentication URL
+// @Description This endpoint generates the OAuth2 authentication URL for the specified provider.
 // @Tags OAuth2
 // @Accept json
 // @Produce json
-// @Param provider query string true "The OAuth2 provider to get the auth URL for"
-// @Success 302 {string} string "Redirect to the Outlook OAuth2 authentication page."
-// @Failure 500 {string} string "Error loading OAuth2 config"
+// @Param provider query string true "Name of the OAuth2 provider to generate the authentication URL for"
+// @Success 200 {object} map[string]string "Returns a message with the URL to visit to authorize the application"
+// @Failure 400 {object} map[string]string "Returns an error message if the provided OAuth2 provider is invalid"
+// @Failure 500 {object} map[string]string "Returns an error message if there was an error loading the OAuth2 configuration or generating the OAuth2 URL"
 // @Router /v1/auth/oauth [get]
 func GetOAtuh(c *fiber.Ctx) error {
 
