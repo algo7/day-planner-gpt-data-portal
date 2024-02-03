@@ -211,7 +211,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 // @Success 200 {object} string "Renders the API key form if the initial password exists and has not been used"
 // @Success 307 {string} string "Redirects to the home page if the initial password has been used"
 // @Failure 500 {object} map[string]string "Returns an error message if the initial password does not exist or there was an error getting the initial password"
-// @Router /v1/auth/internal/apikey" [get]
+// @Router /v1/auth/internal/apikey [get]
 func GetAPIKey(c *fiber.Ctx) error {
 
 	// Check if the initial password exists in Redis
