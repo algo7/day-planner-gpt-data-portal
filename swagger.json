@@ -32,12 +32,9 @@
                 "summary": "Home Page",
                 "responses": {
                     "200": {
-                        "description": "data: 'Hello, World!'",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.APIResponse"
                         }
                     }
                 }
@@ -377,6 +374,15 @@
         }
     },
     "definitions": {
+        "controllers.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "integrations.Email": {
             "type": "object",
             "properties": {
