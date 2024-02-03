@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -142,59 +141,6 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
 	return c.RedirectToRoute("oauth_success", nil, fiber.StatusTemporaryRedirect)
-}
-
-/*
-* OAuth2 Device Flow
- */
-
-// GetAuthGoogleDevice gets the information for the device flow for Google
-// @Summary Gets the link and user code for the device flow for Google
-// @Description Gets the link and user code for the device flow for Google
-// @Tags OAuth2
-// @Accept json
-// @Produce json
-// @Success 200 {string} string "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx"
-// @Failure 500 {string} string "Error loading OAuth2 config"
-// @Router /v1/auth/oauth/google/device [get]
-func GetAuthGoogleDevice(c *fiber.Ctx) error {
-
-	config, err := utils.GetOAuth2Config("google")
-	if err != nil {
-		log.Printf("Error getting OAuth2 config: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	// Get the URL to visit to authorize the application
-	url, deviceCode, err := utils.GenerateOauthURL(config, "google", "Device")
-	if err != nil {
-		log.Printf("Error getting device flow info: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	// Start polling for the token in a non-blocking way
-	go func() {
-		tok, err := utils.PollToken(config, deviceCode)
-		if err != nil {
-			log.Println(fmt.Errorf("unable to poll token: %v", err))
-			return
-		}
-
-		// Marshals the token into a JSON object
-		tokenJSON, err := json.Marshal(tok)
-		if err != nil {
-			log.Println(fmt.Errorf("Unable to marshal token: %v", err))
-		}
-		ttl := 7 * 24 * time.Hour
-		err = redisclient.Rdb.Set(context.Background(), "google", tokenJSON, ttl).Err()
-		if err != nil {
-			log.Println(fmt.Errorf("unable to save the polled token to redis: %w", err))
-			return
-		}
-	}()
-
-	// Redirect the user to the authURL
-	return c.SendString(url)
 }
 
 /*
@@ -371,3 +317,56 @@ func PostAPIKey(c *fiber.Ctx) error {
 func GetAuthSuccess(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": "Auth Success"})
 }
+
+/*
+// * OAuth2 Device Flow
+//  */
+
+// // GetAuthGoogleDevice gets the information for the device flow for Google
+// // @Summary Gets the link and user code for the device flow for Google
+// // @Description Gets the link and user code for the device flow for Google
+// // @Tags OAuth2
+// // @Accept json
+// // @Produce json
+// // @Success 200 {string} string "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx"
+// // @Failure 500 {string} string "Error loading OAuth2 config"
+// // @Router /v1/auth/oauth/google/device [get]
+// func GetAuthGoogleDevice(c *fiber.Ctx) error {
+
+// 	config, err := utils.GetOAuth2Config("google")
+// 	if err != nil {
+// 		log.Printf("Error getting OAuth2 config: %v", err)
+// 		return c.SendStatus(fiber.StatusInternalServerError)
+// 	}
+
+// 	// Get the URL to visit to authorize the application
+// 	url, deviceCode, err := utils.GenerateOauthURL(config, "google", "Device")
+// 	if err != nil {
+// 		log.Printf("Error getting device flow info: %v", err)
+// 		return c.SendStatus(fiber.StatusInternalServerError)
+// 	}
+
+// 	// Start polling for the token in a non-blocking way
+// 	go func() {
+// 		tok, err := utils.PollToken(config, deviceCode)
+// 		if err != nil {
+// 			log.Println(fmt.Errorf("unable to poll token: %v", err))
+// 			return
+// 		}
+
+// 		// Marshals the token into a JSON object
+// 		tokenJSON, err := json.Marshal(tok)
+// 		if err != nil {
+// 			log.Println(fmt.Errorf("Unable to marshal token: %v", err))
+// 		}
+// 		ttl := 7 * 24 * time.Hour
+// 		err = redisclient.Rdb.Set(context.Background(), "google", tokenJSON, ttl).Err()
+// 		if err != nil {
+// 			log.Println(fmt.Errorf("unable to save the polled token to redis: %w", err))
+// 			return
+// 		}
+// 	}()
+
+// 	// Redirect the user to the authURL
+// 	return c.SendString(url)
+// }
