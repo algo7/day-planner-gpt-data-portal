@@ -19,45 +19,25 @@
     "paths": {
         "/": {
             "get": {
-                "description": "Returns the home page of the application.",
+                "description": "This endpoint returns a welcome message.",
                 "consumes": [
-                    "*/*"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Pages"
+                    "Home"
                 ],
-                "summary": "Home Page",
+                "summary": "Get Home",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Returns a welcome message",
                         "schema": {
-                            "$ref": "#/definitions/controllers.APIResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/success": {
-            "get": {
-                "description": "Returns a page to show that the oauth authentication was successful.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "OAuth2 Success Page",
-                "responses": {
-                    "200": {
-                        "description": "Auth Success",
-                        "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -65,7 +45,7 @@
         },
         "/v1/auth/internal/apikey": {
             "get": {
-                "description": "Returns a page to get the initial API key. If the initial password has expired, it redirects to the home page.",
+                "description": "This endpoint checks if the initial password exists in Redis and if it does, renders the API key form. If the initial password does not exist or has been used, it redirects to the home page or prompts the user to restart the server.",
                 "consumes": [
                     "application/json"
                 ],
@@ -75,31 +55,33 @@
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Get API Key Page",
+                "summary": "Get API Key",
                 "responses": {
                     "200": {
-                        "description": "Render the API key form page",
+                        "description": "Renders the API key form if the initial password exists and has not been used",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
                         }
                     },
-                    "302": {
-                        "description": "Redirect to the home page if the initial password has expired",
+                    "307": {
+                        "description": "Redirects to the home page if the initial password has been used",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Error getting initial password from Redis",
+                        "description": "Returns an error message if the initial password does not exist or there was an error getting the initial password",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             },
             "post": {
-                "description": "Generates a new API key and stores it in Redis with a TTL of 7 days. If the initial password has expired, it redirects to the home page.",
+                "description": "This endpoint checks if the initial password exists in Redis, compares it with the password from the form, generates an API key if the passwords match, saves the API key in Redis with a TTL of 7 days, and sets the initial password to an empty string.",
                 "consumes": [
                     "application/json"
                 ],
@@ -109,11 +91,11 @@
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Generate API Key",
+                "summary": "Post API Key",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Password for API key generation",
+                        "description": "Password from the form",
                         "name": "password",
                         "in": "formData",
                         "required": true
@@ -121,27 +103,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "API key: {apiKey}",
+                        "description": "Returns the generated API key",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "302": {
-                        "description": "Redirect to the home page if the initial password has expired",
-                        "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
-                        "description": "Incorrect password",
+                        "description": "Returns an error message if the password from the form does not match the initial password",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Error getting initial password or generating API key",
+                        "description": "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -149,7 +134,7 @@
         },
         "/v1/auth/oauth": {
             "get": {
-                "description": "Redirects to the Outlook OAuth2 authentication page.",
+                "description": "This endpoint generates the OAuth2 authentication URL for the specified provider.",
                 "consumes": [
                     "application/json"
                 ],
@@ -159,27 +144,42 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "Get Outlook Auth Page",
+                "summary": "Get OAuth2 Authentication URL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The OAuth2 provider to get the auth URL for",
+                        "description": "Name of the OAuth2 provider to generate the authentication URL for",
                         "name": "provider",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Redirect to the Outlook OAuth2 authentication page.",
+                    "200": {
+                        "description": "Returns a message with the URL to visit to authorize the application",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Returns an error message if the provided OAuth2 provider is invalid",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Error loading OAuth2 config",
+                        "description": "Returns an error message if there was an error loading the OAuth2 configuration or generating the OAuth2 URL",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -187,7 +187,7 @@
         },
         "/v1/auth/oauth/callback": {
             "get": {
-                "description": "Handles the callback from the give OAuth2 provider, exchanging the authorization code for an access token.",
+                "description": "This endpoint handles the callback from the OAuth2 provider, exchanges the authorization code for an access token, and saves the token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,62 +197,46 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "Handles OAuth2 Redirect",
+                "summary": "OAuth2 Callback Endpoint",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Authorization code from Google OAuth2 provider",
+                        "description": "Authorization code returned by the OAuth2 provider",
                         "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State token for CSRF protection",
+                        "name": "state",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Redirect to a predefined route after successful authorization",
+                    "307": {
+                        "description": "Redirects to the OAuth success route on successful token exchange and save",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "No state token found in the request",
+                        "description": "Returns an error message if the authorization code or state token is missing or invalid, or if the OAuth2 provider is invalid",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Returns an error message if there was an error getting the OAuth2 configuration, exchanging the code for a token, or saving the token",
                         "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/oauth/google/device": {
-            "get": {
-                "description": "Gets the link and user code for the device flow for Google",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "Gets the link and user code for the device flow for Google",
-                "responses": {
-                    "200": {
-                        "description": "Please go to https://www.google.com/device and enter the following code xxx-xxx-xxx",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error loading OAuth2 config",
-                        "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -260,7 +244,7 @@
         },
         "/v1/auth/oauth/refresh": {
             "get": {
-                "description": "Handles the callback from Google OAuth2 authentication, exchanging the authorization code for an access token.",
+                "description": "This endpoint retrieves a new access token using the refresh token for the specified provider.",
                 "consumes": [
                     "application/json"
                 ],
@@ -270,35 +254,47 @@
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "OAuth2 Redirect for Google",
+                "summary": "Get New Token From Refresh Token",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Provider to get the new token from the refresh token",
+                        "description": "Name of the OAuth2 provider to get the new access token for",
                         "name": "provider",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Redirect to the auth success page",
+                    "307": {
+                        "description": "Redirects to the OAuth success route on successful token retrieval and update",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "500": {
-                        "description": "Internal server error",
+                    "400": {
+                        "description": "Returns an error message if the provided OAuth2 provider is invalid",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Returns an error message if there was an error getting the OAuth2 configuration, retrieving the token, getting the new token from the refresh token, or updating the token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/v1/email/google": {
+        "/v1/auth/success": {
             "get": {
-                "description": "Retrieves emails from the user's Gmail account.",
+                "description": "This endpoint returns a success message after successful authentication.",
                 "consumes": [
                     "application/json"
                 ],
@@ -306,29 +302,58 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Emails"
+                    "OAuth2"
+                ],
+                "summary": "OAuth2 Success Page",
+                "responses": {
+                    "200": {
+                        "description": "Returns a success message indicating successful authentication",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/email/gmail": {
+            "get": {
+                "description": "This endpoint retrieves emails from Gmail. If there is an error, it redirects to the Google authentication route or returns a server error.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email"
                 ],
                 "summary": "Get Gmail Emails",
                 "responses": {
                     "200": {
-                        "description": "List of Gmail emails",
+                        "description": "Returns the retrieved emails",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/integrations.Email"
+                                "type": "string"
                             }
                         }
                     },
-                    "302": {
-                        "description": "Redirect to Google authentication if the access token is missing or invalid",
+                    "307": {
+                        "description": "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "description": "Returns an error message if there is a Redis related error that is not due to the token key not being found",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -336,7 +361,7 @@
         },
         "/v1/email/outlook": {
             "get": {
-                "description": "Retrieves emails from the user's Outlook account.",
+                "description": "This endpoint retrieves emails from Outlook. If there is an error, it redirects to the Outlook authentication route or returns a server error.",
                 "consumes": [
                     "application/json"
                 ],
@@ -344,62 +369,34 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Emails"
+                    "Email"
                 ],
                 "summary": "Get Outlook Emails",
                 "responses": {
                     "200": {
-                        "description": "List of Outlook emails",
+                        "description": "Returns the retrieved emails",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/integrations.Email"
+                                "type": "string"
                             }
                         }
                     },
-                    "302": {
-                        "description": "Redirect to Outlook authentication if the access token is missing or invalid",
+                    "307": {
+                        "description": "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
+                        "description": "Returns an error message if there is a Redis related error that is not due to the token key not being found",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "controllers.APIResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "integrations.Email": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "recievedDateTime": {
-                    "type": "string"
-                },
-                "sender": {
-                    "type": "string"
-                },
-                "subject": {
-                    "type": "string"
                 }
             }
         }
