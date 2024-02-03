@@ -15,7 +15,7 @@ import (
 func GetHome(c *fiber.Ctx) error {
 	response := APIResponse{
 		Status: 200,
-		Data:   map[string]string{"data": "Hello, World!"},
+		Data:   "Welcome to the Day Planner GPT Data Portal API",
 	}
 	return c.JSON(response)
 }
