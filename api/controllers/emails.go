@@ -12,13 +12,13 @@ import (
 
 // GetOutlookEmails returns the user's outlook emails.
 // @Summary Get Outlook Emails
-// @Description Retrieves emails from the user's Outlook account.
-// @Tags Emails
+// @Description This endpoint retrieves emails from Outlook. If there is an error, it redirects to the Outlook authentication route or returns a server error.
+// @Tags Email
 // @Accept json
 // @Produce json
-// @Success 200 {array} integrations.Email "List of Outlook emails"
-// @Failure 302 {string} string "Redirect to Outlook authentication if the access token is missing or invalid"
-// @Failure 500 {string} string "Unable to retrieve emails due to server error or token retrieval issue"
+// @Success 200 {array} string "Returns the retrieved emails"
+// @Failure 307 {string} string "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error"
+// @Failure 500 {object} map[string]string "Returns an error message if there is a Redis related error that is not due to the token key not being found"
 // @Router /v1/email/outlook [get]
 func GetOutlookEmails(c *fiber.Ctx) error {
 
@@ -29,32 +29,32 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 		// Redis related errors that are not due to the token key not being found
 		if strings.Contains(err.Error(), "redis") && err != redis.Nil {
 			log.Printf("Error getting emails due to redis connection: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to retrieve emails due to server error or token retrieval issue"})
 		}
 
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
 			log.Println("Outlook Access token not found in redis")
-			return c.RedirectToRoute("outlook_auth", nil, 302)
+			return c.RedirectToRoute("outlook_auth", nil, fiber.StatusTemporaryRedirect)
 		}
 
 		// Non-redis related errors
 		log.Printf("Error getting emails: %v", err)
-		return c.RedirectToRoute("outlook_auth", nil, 302)
+		return c.RedirectToRoute("outlook_auth", nil, fiber.StatusTemporaryRedirect)
 	}
-	return c.JSON(emails)
+	return c.Status(fiber.StatusOK).JSON(emails)
 }
 
 // GetGmailEmails returns the user's Gmail emails.
 // @Summary Get Gmail Emails
-// @Description Retrieves emails from the user's Gmail account.
-// @Tags Emails
+// @Description This endpoint retrieves emails from Gmail. If there is an error, it redirects to the Google authentication route or returns a server error.
+// @Tags Email
 // @Accept json
 // @Produce json
-// @Success 200 {array} integrations.Email "List of Gmail emails"
-// @Failure 302 {string} string "Redirect to Google authentication if the access token is missing or invalid"
-// @Failure 500 {string} string "Unable to retrieve emails due to server error or token retrieval issue"
-// @Router /v1/email/google [get]
+// @Success 200 {array} string "Returns the retrieved emails"
+// @Failure 307 {string} string "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error"
+// @Failure 500 {object} map[string]string "Returns an error message if there is a Redis related error that is not due to the token key not being found"
+// @Router /v1/email/gmail [get]
 func GetGmailEmails(c *fiber.Ctx) error {
 
 	emails, err := gmail.GetEmails()
@@ -64,19 +64,19 @@ func GetGmailEmails(c *fiber.Ctx) error {
 		// Redis related errors that are not due to the token key not being found
 		if strings.Contains(err.Error(), "redis") && err != redis.Nil {
 			log.Printf("Error getting emails due to redis connection: %v", err)
-			return c.SendStatus(fiber.StatusInternalServerError)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to retrieve emails due to server error or token retrieval issue"})
 		}
 
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
 			log.Println("Gmail Access token not found in redis")
-			return c.RedirectToRoute("google_auth", nil, 302)
+			return c.RedirectToRoute("google_auth", nil, fiber.StatusTemporaryRedirect)
 		}
 
 		// Non-redis related errors
 		log.Printf("Error getting emails: %v", err)
-		return c.RedirectToRoute("google_auth", nil, 302)
+		return c.RedirectToRoute("google_auth", nil, fiber.StatusTemporaryRedirect)
 	}
 
-	return c.JSON(emails)
+	return c.Status(fiber.StatusOK).JSON(emails)
 }
