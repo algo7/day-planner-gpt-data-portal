@@ -10,8 +10,12 @@ import (
 // @Tags Pages
 // @Accept */*
 // @Produce json
-// @Success 200 {object} map[string]string "data: 'Hello, World!'"
+// @Success 200 {object} APIResponse
 // @Router / [get]
 func GetHome(c *fiber.Ctx) error {
-	return c.JSON(map[string]string{"data": "Hello, World!"})
+	response := APIResponse{
+		Status: 200,
+		Data:   map[string]string{"data": "Hello, World!"},
+	}
+	return c.JSON(response)
 }
