@@ -56,7 +56,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 // @Success 200 {array} integrations.Email "Returns the retrieved emails"
 // @Failure 307 {string} string "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error"
 // @Failure 500 {object} Response "Returns an error message if there is a Redis related error that is not due to the token key not being found"
-// @Router /v1/email/gmail [get]
+// @Router /v1/email/google [get]
 func GetGmailEmails(c *fiber.Ctx) error {
 
 	emails, err := gmail.GetEmails()
