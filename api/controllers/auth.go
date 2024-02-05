@@ -25,9 +25,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param provider query string true "Name of the OAuth2 provider to generate the authentication URL for"
-// @Success 200 {object} map[string]string "Returns a message with the URL to visit to authorize the application"
-// @Failure 400 {object} map[string]string "Returns an error message if the provided OAuth2 provider is invalid"
-// @Failure 500 {object} map[string]string "Returns an error message if there was an error loading the OAuth2 configuration or generating the OAuth2 URL"
+// @Success 200 {object} Response "Returns a message with the URL to visit to authorize the application"
+// @Failure 400 {object} Response "Returns an error message if the provided OAuth2 provider is invalid"
+// @Failure 500 {object} Response "Returns an error message if there was an error loading the OAuth2 configuration or generating the OAuth2 URL"
 // @Router /v1/auth/oauth [get]
 func GetOAtuh(c *fiber.Ctx) error {
 
@@ -36,38 +36,56 @@ func GetOAtuh(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
+		response := Response{
+			Error: "Invalid provider",
+		}
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	// Check Access Token Status
 	token, err := utils.RetrieveToken(provider)
 	if err != nil && err != redis.Nil {
+		response := Response{
+			Error: "Error Checking Access Token Status",
+		}
 		log.Printf("Error getting token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error Checking Access Token Status"})
+		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 
 	if token != nil {
 		// Calculate how many minutes are left until the token expires and round it up to the nearest minute
 		minutesLeft := int(token.Expiry.Sub(time.Now()).Minutes() + 1)
 		if minutesLeft > 0 {
-			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft)})
+			response := Response{
+				Error: fmt.Sprintf("Access Token is still valid for %v miutes", minutesLeft),
+			}
+			return c.Status(fiber.StatusOK).JSON(response)
 		}
 	}
 
 	// Load the OAuth2 config from the JSON file
 	config, err := utils.GetOAuth2Config(provider)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Error loading OAuth2 config: %v", err)})
+		response := Response{
+			Error: fmt.Sprintf("Error loading OAuth2 config: %v", err),
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 
 	// Get the URL to visit to authorize the application
 	authURL, _, err := utils.GenerateOauthURL(config, provider, "PCKE")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Error generating OAuth2 URL: %v", err)})
+		response := Response{
+			Error: fmt.Sprintf("Error generating OAuth2 URL: %v", err),
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 
 	// Show the user the URL to visit to authorize our application
-	return c.Status(200).JSON(fiber.Map{"data": fmt.Sprintf("Please complete the authorization workflow by going to the following URL:\n %s", authURL)})
+	response := Response{
+		Data: fmt.Sprintf("Please complete the authorization workflow by going to the following URL:\n %s", authURL),
+	}
+	return c.Status(200).JSON(response)
 }
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider
@@ -80,8 +98,8 @@ func GetOAtuh(c *fiber.Ctx) error {
 // @Param code query string true "Authorization code returned by the OAuth2 provider"
 // @Param state query string true "State token for CSRF protection"
 // @Success 307 {string} string "Redirects to the OAuth success route on successful token exchange and save"
-// @Failure 400 {object} map[string]string "Returns an error message if the authorization code or state token is missing or invalid, or if the OAuth2 provider is invalid"
-// @Failure 500 {object} map[string]string "Returns an error message if there was an error getting the OAuth2 configuration, exchanging the code for a token, or saving the token"
+// @Failure 400 {object} Response "Returns an error message if the authorization code or state token is missing or invalid, or if the OAuth2 provider is invalid"
+// @Failure 500 {object} Response "Returns an error message if there was an error getting the OAuth2 configuration, exchanging the code for a token, or saving the token"
 // @Router /v1/auth/oauth/callback [get]
 func GetOAuthCallBack(c *fiber.Ctx) error {
 
@@ -90,25 +108,27 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 	state := c.Query("state")
 
 	if code == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No authorization code found in the request"})
+
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "No authorization code found in the request"})
 	}
 
 	// Check if the state token is valid
 	if state == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No state token found in the request"})
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "No state token found in the request"})
 	}
 
 	stateToken, err := redisclient.Rdb.GetDel(context.Background(), fmt.Sprintf("stateToken_%s", state)).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid state token or state token has expired"})
+			return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "Invalid state token or state token has expired"})
 		}
 		log.Printf("Error getting state token from Redis: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting state token"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting state token"})
 	}
 
 	if stateToken != state {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid state token"})
+
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "Invalid state token"})
 	}
 
 	// Parses the state token base on - as the delimiter to get the provider
@@ -117,28 +137,28 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "Invalid provider"})
 	}
 
 	// Empty OAuth2 config to be filled based on the provider
 	authConfig, err := utils.GetOAuth2Config(provider)
 	if err != nil {
 		log.Printf("Error getting OAuth2 config: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting OAuth2 config"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting OAuth2 config"})
 	}
 
 	// Exchange the code for an access token here
 	tok, err := utils.ExchangeCodeForToken(authConfig, code)
 	if err != nil {
 		log.Printf("Error exchanging code for token: %v", err)
-		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error exchanging code for access token"})
+		c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error exchanging code for token"})
 	}
 
 	// Save the token in Redis
 	err = utils.SaveToken(provider, tok)
 	if err != nil {
-		log.Printf("Error saving token: %v", err)
-		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error saving access token"})
+		log.Printf("Error saving access token: %v", err)
+		c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error saving access token"})
 	}
 
 	// return c.SendString(fmt.Sprintf("Authorization code: %s", code))
@@ -158,8 +178,8 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 // @Produce json
 // @Param provider query string true "Name of the OAuth2 provider to get the new access token for"
 // @Success 307 {string} string "Redirects to the OAuth success route on successful token retrieval and update"
-// @Failure 400 {object} map[string]string "Returns an error message if the provided OAuth2 provider is invalid"
-// @Failure 500 {object} map[string]string "Returns an error message if there was an error getting the OAuth2 configuration, retrieving the token, getting the new token from the refresh token, or updating the token"
+// @Failure 400 {object} Response "Returns an error message if the provided OAuth2 provider is invalid"
+// @Failure 500 {object} Response "Returns an error message if there was an error getting the OAuth2 configuration, retrieving the token, getting the new token from the refresh token, or updating the token"
 // @Router /v1/auth/oauth/refresh [get]
 func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
@@ -168,34 +188,34 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 	// Check if the provider is valid
 	_, ok := utils.ValidProviders[provider]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid provider"})
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "Invalid provider"})
 	}
 
 	// Get the OAuth2 config for the provider
 	providerConfig, err := utils.GetOAuth2Config(provider)
 	if err != nil {
 		log.Printf("Error getting OAuth2 config: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting OAuth2 config"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting OAuth2 config"})
 	}
 
 	tok, err := utils.RetrieveToken(provider)
 	if err != nil {
 		log.Printf("Error getting token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Access token not found or has expired"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Access token not found or has expired"})
 	}
 
 	// Get the token from the refresh token
 	newTok, err := utils.GetTokenFromRefreshToken(providerConfig, tok.RefreshToken)
 	if err != nil {
 		log.Printf("Error getting token from refresh token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting access token from refresh token"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting access token from refresh token"})
 	}
 
 	// Update the token in Redis
 	err = utils.UpdateToken(provider, newTok)
 	if err != nil {
 		log.Printf("Error updating token: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error updating access token"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error updating access token"})
 	}
 
 	return c.RedirectToRoute("oauth_success", nil, fiber.StatusTemporaryRedirect)
@@ -212,9 +232,9 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} string "Renders the API key form if the initial password exists and has not been used"
+// @Success 200 {object} Response "Renders the API key form if the initial password exists and has not been used"
 // @Success 307 {string} string "Redirects to the home page if the initial password has been used"
-// @Failure 500 {object} map[string]string "Returns an error message if the initial password does not exist or there was an error getting the initial password"
+// @Failure 500 {object} Response "Returns an error message if the initial password does not exist or there was an error getting the initial password"
 // @Router /v1/auth/internal/apikey [get]
 func GetAPIKey(c *fiber.Ctx) error {
 
@@ -225,11 +245,11 @@ func GetAPIKey(c *fiber.Ctx) error {
 		if err == redis.Nil {
 			return c.
 				Status(fiber.StatusInternalServerError).
-				JSON(fiber.Map{"error": "Initial password does not exist. Please restart the server to generate a new password"})
+				JSON(Response{Error: "Initial password does not exist. Please restart the server to generate a new password"})
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting initial password"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting initial password"})
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
@@ -248,9 +268,9 @@ func GetAPIKey(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param password formData string true "Password from the form"
-// @Success 200 {object} map[string]string "Returns the generated API key"
-// @Failure 400 {object} map[string]string "Returns an error message if the password from the form does not match the initial password"
-// @Failure 500 {object} map[string]string "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password"
+// @Success 200 {object} Response "Returns the generated API key"
+// @Failure 400 {object} Response "Returns an error message if the password from the form does not match the initial password"
+// @Failure 500 {object} Response "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password"
 // @Router /v1/auth/internal/apikey [post]
 func PostAPIKey(c *fiber.Ctx) error {
 
@@ -259,11 +279,11 @@ func PostAPIKey(c *fiber.Ctx) error {
 	if err != nil {
 		// If the initial password does not exist, warn the user to restart the server to generate a new password.
 		if err == redis.Nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Initial password does not exist. Please restart the server to generate a new password"})
+			return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Initial password does not exist. Please restart the server to generate a new password"})
 		}
 		// If there is an error getting the initial password, log the error and return a 500 status code.
 		log.Printf("Error getting initial password: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error getting initial password"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error getting initial password"})
 	}
 
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
@@ -276,14 +296,14 @@ func PostAPIKey(c *fiber.Ctx) error {
 
 	// Compare the password with the initial password
 	if password != initialPassword {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Incorrect password"})
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: "Invalid password"})
 	}
 
 	// Generate an API key.
 	apiKey, err := utils.GenerateAPIKey()
 	if err != nil {
 		log.Printf("Error generating API key: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error generating API key"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error generating API key"})
 	}
 
 	// Set the API key in Redis with a TTL of 7 days.
@@ -293,18 +313,18 @@ func PostAPIKey(c *fiber.Ctx) error {
 	err = redisclient.Rdb.Set(context.Background(), fmt.Sprintf("apikey_%s", apiKey), apiKey, ttl).Err()
 	if err != nil {
 		log.Printf("Error saving API key: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error saving API key"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error saving API key"})
 	}
 
 	// Set the initial password to an empty string
 	err = redisclient.Rdb.Set(context.Background(), "initial_password", "", 0).Err()
 	if err != nil {
 		log.Printf("Error Deleting the initial password: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error Deleting the initial password"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "Error deleting the initial password"})
 	}
 
 	// Return the API key.
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": fmt.Sprintf("API key: %s", apiKey)})
+	return c.Status(fiber.StatusOK).JSON(Response{Data: fmt.Sprintf("API key: %s", apiKey)})
 }
 
 /*
@@ -318,10 +338,10 @@ func PostAPIKey(c *fiber.Ctx) error {
 // @Tags OAuth2
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string "Returns a success message indicating successful authentication"
+// @Success 200 {object} Response "Returns a success message indicating successful authentication"
 // @Router /v1/auth/success [get]
 func GetAuthSuccess(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": "Auth Success"})
+	return c.Status(fiber.StatusOK).JSON(Response{Data: "Authentication Successful"})
 }
 
 /*

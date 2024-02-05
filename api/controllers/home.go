@@ -11,10 +11,9 @@ import (
 // @Tags Home
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string "Returns a welcome message"
+// @Success 200 {object} Response "Returns a welcome message"
 // @Router / [get]
 func GetHome(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data": "Welcome to the Day Planner GPT Data Portal API!",
-	})
+
+	return c.Status(fiber.StatusOK).JSON(Response{Data: "Welcome to the Fiber API"})
 }
