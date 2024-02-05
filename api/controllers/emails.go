@@ -12,7 +12,7 @@ import (
 
 // GetOutlookEmails returns the user's outlook emails.
 // @Summary Get Outlook Emails
-// @OperationId getOutlookEmails
+// @ID getOutlookEmails
 // @Description This endpoint retrieves emails from Outlook. If there is an error, it redirects to the Outlook authentication route or returns a server error.
 // @Tags Email
 // @Accept json
@@ -48,7 +48,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 
 // GetGmailEmails returns the user's Gmail emails.
 // @Summary Get Gmail Emails
-// @OperationId getGmailEmails
+// @ID getGmailEmails
 // @Description This endpoint retrieves emails from Gmail. If there is an error, it redirects to the Google authentication route or returns a server error.
 // @Tags Email
 // @Accept json

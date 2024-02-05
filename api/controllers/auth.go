@@ -19,7 +19,7 @@ import (
 
 // GetOAtuh returns the auth URL for the given OAuth2 provider
 // @Summary Get OAuth2 Authentication URL
-// @OperationId getOAuth
+// @ID getOAuth
 // @Description This endpoint generates the OAuth2 authentication URL for the specified provider.
 // @Tags OAuth2
 // @Accept json
@@ -72,7 +72,7 @@ func GetOAtuh(c *fiber.Ctx) error {
 
 // GetOAuthCallBack handles the redirect from the OAuth2 provider
 // @Summary OAuth2 Callback Endpoint
-// @OperationId getOAuthCallBack
+// @ID getOAuthCallBack
 // @Description This endpoint handles the callback from the OAuth2 provider, exchanges the authorization code for an access token, and saves the token.
 // @Tags OAuth2
 // @Accept json
@@ -151,7 +151,7 @@ func GetOAuthCallBack(c *fiber.Ctx) error {
 
 // GetNewTokenFromRefreshToken handles the redirect from the OAuth2 provider
 // @Summary Get New Token From Refresh Token
-// @OperationId getNewTokenFromRefreshToken
+// @ID getNewTokenFromRefreshToken
 // @Description This endpoint retrieves a new access token using the refresh token for the specified provider.
 // @Tags OAuth2
 // @Accept json
@@ -207,7 +207,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 
 // GetAPIKey returns a page to get the initial API key
 // @Summary Get API Key
-// @OperationId getAPIKey
+// @ID getAPIKey
 // @Description This endpoint checks if the initial password exists in Redis and if it does, renders the API key form. If the initial password does not exist or has been used, it redirects to the home page or prompts the user to restart the server.
 // @Tags Authentication
 // @Accept json
@@ -242,7 +242,7 @@ func GetAPIKey(c *fiber.Ctx) error {
 
 // PostAPIKey generates and returns a new API key
 // @Summary Post API Key
-// @OperationId postAPIKey
+// @ID postAPIKey
 // @Description This endpoint checks if the initial password exists in Redis, compares it with the password from the form, generates an API key if the passwords match, saves the API key in Redis with a TTL of 7 days, and sets the initial password to an empty string.
 // @Tags Authentication
 // @Accept json
@@ -312,7 +312,7 @@ func PostAPIKey(c *fiber.Ctx) error {
  */
 
 // GetAuthSuccess returns a page to show that the oauth authentication was successful
-// @OperationId getAuthSuccess
+// @ID getAuthSuccess
 // @Summary OAuth2 Success Page
 // @Description This endpoint returns a success message after successful authentication.
 // @Tags OAuth2
