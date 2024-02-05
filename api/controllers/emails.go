@@ -17,7 +17,7 @@ import (
 // @Tags Email
 // @Accept json
 // @Produce json
-// @Success 200 {object} integrations.Email "Returns the retrieved emails"
+// @Success 200 {array} integrations.Email "Returns the retrieved emails"
 // @Failure 307 {string} string "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error"
 // @Failure 500 {object} Response "Returns an error message if there is a Redis related error that is not due to the token key not being found"
 // @Router /v1/email/outlook [get]
@@ -53,7 +53,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 // @Tags Email
 // @Accept json
 // @Produce json
-// @Success 200 {object} integrations.Email "Returns the retrieved emails"
+// @Success 200 {array} integrations.Email "Returns the retrieved emails"
 // @Failure 307 {string} string "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error"
 // @Failure 500 {object} Response "Returns an error message if there is a Redis related error that is not due to the token key not being found"
 // @Router /v1/email/gmail [get]
