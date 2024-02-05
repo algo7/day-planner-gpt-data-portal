@@ -6,6 +6,7 @@ import (
 
 // GetHome returns the home page.
 // @Summary Get Home
+// @OperationId getHome
 // @Description This endpoint returns a welcome message.
 // @Tags Home
 // @Accept json
