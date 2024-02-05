@@ -57,15 +57,9 @@
                 "operationId": "getAPIKey",
                 "responses": {
                     "200": {
-                        "description": "Renders the API key form if the initial password exists and has not been used",
+                        "description": "The initial password has been used. Please check the database for the API key",
                         "schema": {
-                            "$ref": "#/definitions/controllers.Response"
-                        }
-                    },
-                    "307": {
-                        "description": "Redirects to the home page if the initial password has been used",
-                        "schema": {
-                            "type": "string"
+                            "type": "Object"
                         }
                     },
                     "500": {
@@ -100,7 +94,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the generated API key",
+                        "description": "The initial password has been used. Please check the database for the API key",
                         "schema": {
                             "$ref": "#/definitions/controllers.Response"
                         }
@@ -337,10 +331,10 @@
                             "type": "Object"
                         }
                     },
-                    "307": {
-                        "description": "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error",
+                    "500": {
+                        "description": "Unable to retrieve emails due to server error or token retrieval issue",
                         "schema": {
-                            "type": "string"
+                            "type": "Object"
                         }
                     }
                 }
