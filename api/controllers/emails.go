@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {array} integrations.Email "Returns the retrieved emails"
-// @Failure 307 {string} string "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error"
+// @Failure 500 {Object} Response "Unable to retrieve emails due to server error or token retrieval issue"
 // @Success 200 {Object} Response "Returns a message if the outlook session has expired"
 // @Router /v1/email/outlook [get]
 func GetOutlookEmails(c *fiber.Ctx) error {
@@ -36,7 +36,9 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
 			log.Println("Outlook Access token not found in redis")
-			return c.RedirectToRoute("outlook_auth", nil, fiber.StatusTemporaryRedirect)
+			return c.Status(fiber.StatusOK).JSON(Response{
+				Data: "You outlook session has expired, please re-authenticate using provider=outlook",
+			})
 		}
 
 		// Non-redis related errors
@@ -76,7 +78,9 @@ func GetGmailEmails(c *fiber.Ctx) error {
 		// Redis related errors that are due to the token key not being found
 		if err == redis.Nil {
 			log.Println("Gmail Access token not found in redis")
-			return c.RedirectToRoute("google_auth", nil, fiber.StatusTemporaryRedirect)
+			return c.Status(fiber.StatusOK).JSON(Response{
+				Data: "You gmail session has expired, please re-authenticate using provider=google",
+			})
 		}
 
 		// Non-redis related errors
