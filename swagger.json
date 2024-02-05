@@ -304,7 +304,10 @@
                     "200": {
                         "description": "Returns the retrieved emails",
                         "schema": {
-                            "$ref": "#/definitions/integrations.Email"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
                         }
                     },
                     "307": {
@@ -340,7 +343,10 @@
                     "200": {
                         "description": "Returns the retrieved emails",
                         "schema": {
-                            "$ref": "#/definitions/integrations.Email"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
                         }
                     },
                     "307": {
