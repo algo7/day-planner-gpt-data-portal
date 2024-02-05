@@ -35,10 +35,7 @@
                     "200": {
                         "description": "Returns a welcome message",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -62,7 +59,7 @@
                     "200": {
                         "description": "Renders the API key form if the initial password exists and has not been used",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "307": {
@@ -74,10 +71,7 @@
                     "500": {
                         "description": "Returns an error message if the initial password does not exist or there was an error getting the initial password",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -108,28 +102,19 @@
                     "200": {
                         "description": "Returns the generated API key",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "400": {
                         "description": "Returns an error message if the password from the form does not match the initial password",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "500": {
                         "description": "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -162,28 +147,19 @@
                     "200": {
                         "description": "Returns a message with the URL to visit to authorize the application",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "400": {
                         "description": "Returns an error message if the provided OAuth2 provider is invalid",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "500": {
                         "description": "Returns an error message if there was an error loading the OAuth2 configuration or generating the OAuth2 URL",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -229,19 +205,13 @@
                     "400": {
                         "description": "Returns an error message if the authorization code or state token is missing or invalid, or if the OAuth2 provider is invalid",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "500": {
                         "description": "Returns an error message if there was an error getting the OAuth2 configuration, exchanging the code for a token, or saving the token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -280,19 +250,13 @@
                     "400": {
                         "description": "Returns an error message if the provided OAuth2 provider is invalid",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "500": {
                         "description": "Returns an error message if there was an error getting the OAuth2 configuration, retrieving the token, getting the new token from the refresh token, or updating the token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -316,10 +280,7 @@
                     "200": {
                         "description": "Returns a success message indicating successful authentication",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -343,10 +304,7 @@
                     "200": {
                         "description": "Returns the retrieved emails",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/integrations.Email"
                         }
                     },
                     "307": {
@@ -358,10 +316,7 @@
                     "500": {
                         "description": "Returns an error message if there is a Redis related error that is not due to the token key not being found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
@@ -385,10 +340,7 @@
                     "200": {
                         "description": "Returns the retrieved emails",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/integrations.Email"
                         }
                     },
                     "307": {
@@ -400,12 +352,39 @@
                     "500": {
                         "description": "Returns an error message if there is a Redis related error that is not due to the token key not being found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.Response": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "integrations.Email": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "recievedDateTime": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
                 }
             }
         }
