@@ -233,7 +233,7 @@ func GetNewTokenFromRefreshToken(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response "Renders the API key form if the initial password exists and has not been used"
-// @Success 200 {Object} Response "The initial password has been used. Please check the database for the API key"
+// @Failure 500 {Object} Response "The initial password has been used. Please check the database for the API key"
 // @Failure 500 {object} Response "Returns an error message if the initial password does not exist or there was an error getting the initial password"
 // @Router /v1/auth/internal/apikey [get]
 func GetAPIKey(c *fiber.Ctx) error {
@@ -255,7 +255,7 @@ func GetAPIKey(c *fiber.Ctx) error {
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
 	if initialPassword == "" {
 		// return c.RedirectToRoute("home", nil, fiber.StatusTemporaryRedirect)
-		return c.Status(fiber.StatusOK).JSON(Response{Data: "The initial password has been used. Please check the database for the API key"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: "The initial password has been used. Please check the database for the API key"})
 	}
 
 	return c.Render("apikey_form", fiber.Map{})
@@ -270,7 +270,7 @@ func GetAPIKey(c *fiber.Ctx) error {
 // @Produce json
 // @Param password formData string true "Password from the form"
 // @Success 200 {object} Response "Returns the generated API key"
-// @Success 200 {object} Response "The initial password has been used. Please check the database for the API key"
+// @Failure 500 {object} Response "The initial password has been used. Please check the database for the API key"
 // @Failure 400 {object} Response "Returns an error message if the password from the form does not match the initial password"
 // @Failure 500 {object} Response "Returns an error message if the initial password does not exist, there was an error getting the initial password, generating the API key, saving the API key, or deleting the initial password"
 // @Router /v1/auth/internal/apikey [post]
@@ -291,7 +291,7 @@ func PostAPIKey(c *fiber.Ctx) error {
 	// If the initial password is an empty string, redirect to the home page. It means that the initial password has been used.
 	if initialPassword == "" {
 		// return c.RedirectToRoute("home", nil, fiber.StatusTemporaryRedirect)
-		return c.Status(fiber.StatusOK).JSON(Response{Data: "The initial password has been used. Please check the database for the API key"})
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Data: "The initial password has been used. Please check the database for the API key"})
 	}
 
 	// Get the password from the form
