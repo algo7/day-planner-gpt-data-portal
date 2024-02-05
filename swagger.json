@@ -57,9 +57,9 @@
                 "operationId": "getAPIKey",
                 "responses": {
                     "200": {
-                        "description": "The initial password has been used. Please check the database for the API key",
+                        "description": "Renders the API key form if the initial password exists and has not been used",
                         "schema": {
-                            "type": "Object"
+                            "$ref": "#/definitions/controllers.Response"
                         }
                     },
                     "500": {
@@ -94,7 +94,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The initial password has been used. Please check the database for the API key",
+                        "description": "Returns the generated API key",
                         "schema": {
                             "$ref": "#/definitions/controllers.Response"
                         }
@@ -296,6 +296,15 @@
                 "operationId": "getGmailEmails",
                 "responses": {
                     "200": {
+                        "description": "Returns the retrieved emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "Returns a message if the Gmail session has expired",
                         "schema": {
                             "type": "Object"
@@ -326,6 +335,15 @@
                 "operationId": "getOutlookEmails",
                 "responses": {
                     "200": {
+                        "description": "Returns the retrieved emails",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/integrations.Email"
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "Returns a message if the outlook session has expired",
                         "schema": {
                             "type": "Object"
