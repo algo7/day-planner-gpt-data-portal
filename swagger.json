@@ -30,6 +30,7 @@
                     "Home"
                 ],
                 "summary": "Get Home",
+                "operationId": "getHome",
                 "responses": {
                     "200": {
                         "description": "Returns a welcome message",
@@ -56,6 +57,7 @@
                     "Authentication"
                 ],
                 "summary": "Get API Key",
+                "operationId": "getAPIKey",
                 "responses": {
                     "200": {
                         "description": "Renders the API key form if the initial password exists and has not been used",
@@ -92,6 +94,7 @@
                     "Authentication"
                 ],
                 "summary": "Post API Key",
+                "operationId": "postAPIKey",
                 "parameters": [
                     {
                         "type": "string",
@@ -145,6 +148,7 @@
                     "OAuth2"
                 ],
                 "summary": "Get OAuth2 Authentication URL",
+                "operationId": "getOAuth",
                 "parameters": [
                     {
                         "type": "string",
@@ -198,6 +202,7 @@
                     "OAuth2"
                 ],
                 "summary": "OAuth2 Callback Endpoint",
+                "operationId": "getOAuthCallBack",
                 "parameters": [
                     {
                         "type": "string",
@@ -255,6 +260,7 @@
                     "OAuth2"
                 ],
                 "summary": "Get New Token From Refresh Token",
+                "operationId": "getNewTokenFromRefreshToken",
                 "parameters": [
                     {
                         "type": "string",
@@ -305,6 +311,7 @@
                     "OAuth2"
                 ],
                 "summary": "OAuth2 Success Page",
+                "operationId": "getAuthSuccess",
                 "responses": {
                     "200": {
                         "description": "Returns a success message indicating successful authentication",
@@ -331,6 +338,7 @@
                     "Email"
                 ],
                 "summary": "Get Gmail Emails",
+                "operationId": "getGmailEmails",
                 "responses": {
                     "200": {
                         "description": "Returns the retrieved emails",
@@ -372,6 +380,7 @@
                     "Email"
                 ],
                 "summary": "Get Outlook Emails",
+                "operationId": "getOutlookEmails",
                 "responses": {
                     "200": {
                         "description": "Returns the retrieved emails",
