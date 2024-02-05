@@ -302,18 +302,9 @@
                 "operationId": "getGmailEmails",
                 "responses": {
                     "200": {
-                        "description": "Returns the retrieved emails",
+                        "description": "Returns a message if the Gmail session has expired",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
-                        }
-                    },
-                    "307": {
-                        "description": "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error",
-                        "schema": {
-                            "type": "string"
+                            "type": "Object"
                         }
                     },
                     "500": {
@@ -341,24 +332,15 @@
                 "operationId": "getOutlookEmails",
                 "responses": {
                     "200": {
-                        "description": "Returns the retrieved emails",
+                        "description": "Returns a message if the outlook session has expired",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/integrations.Email"
-                            }
+                            "type": "Object"
                         }
                     },
                     "307": {
                         "description": "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Returns an error message if there is a Redis related error that is not due to the token key not being found",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.Response"
                         }
                     }
                 }
