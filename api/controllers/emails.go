@@ -19,7 +19,7 @@ import (
 // @Produce json
 // @Success 200 {array} integrations.Email "Returns the retrieved emails"
 // @Failure 307 {string} string "Redirects to the Outlook authentication route if the access token is not found in Redis or there is a non-Redis related error"
-// @Failure 500 {object} Response "Returns an error message if there is a Redis related error that is not due to the token key not being found"
+// @Success 200 {Object} Response "Returns a message if the outlook session has expired"
 // @Router /v1/email/outlook [get]
 func GetOutlookEmails(c *fiber.Ctx) error {
 
@@ -41,7 +41,11 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 
 		// Non-redis related errors
 		log.Printf("Error getting emails: %v", err)
-		return c.RedirectToRoute("outlook_auth", nil, fiber.StatusTemporaryRedirect)
+
+		// return c.RedirectToRoute("outlook_auth", nil, fiber.StatusTemporaryRedirect)
+		return c.Status(fiber.StatusOK).JSON(Response{
+			Data: "You outlook session has expired, please re-authenticate using provider=outlook",
+		})
 	}
 	return c.Status(fiber.StatusOK).JSON(emails)
 }
@@ -54,7 +58,7 @@ func GetOutlookEmails(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} integrations.Email "Returns the retrieved emails"
-// @Failure 307 {string} string "Redirects to the Google authentication route if the access token is not found in Redis or there is a non-Redis related error"
+// @Success 200 {Object} Response "Returns a message if the Gmail session has expired"
 // @Failure 500 {object} Response "Returns an error message if there is a Redis related error that is not due to the token key not being found"
 // @Router /v1/email/google [get]
 func GetGmailEmails(c *fiber.Ctx) error {
@@ -77,7 +81,10 @@ func GetGmailEmails(c *fiber.Ctx) error {
 
 		// Non-redis related errors
 		log.Printf("Error getting emails: %v", err)
-		return c.RedirectToRoute("google_auth", nil, fiber.StatusTemporaryRedirect)
+		// return c.RedirectToRoute("google_auth", nil, fiber.StatusTemporaryRedirect)
+		return c.Status(fiber.StatusOK).JSON(Response{
+			Data: "You gmail session has expired, please re-authenticate using provider=google",
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(emails)
