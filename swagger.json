@@ -286,7 +286,7 @@
                 }
             }
         },
-        "/v1/email/gmail": {
+        "/v1/email/google": {
             "get": {
                 "description": "This endpoint retrieves emails from Gmail. If there is an error, it redirects to the Google authentication route or returns a server error.",
                 "consumes": [
