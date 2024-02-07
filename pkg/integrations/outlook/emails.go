@@ -3,7 +3,6 @@ package outlook
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
@@ -47,15 +46,16 @@ func GetEmails() ([]integrations.Email, error) {
 	graphClient := msgraphsdk.NewGraphServiceClient(adapter)
 
 	// Get the current time
-	now := time.Now()
+	// now := time.Now()
 
 	// Subtract 2 days from the current time
-	twoDaysAgo := now.AddDate(0, 0, -2)
+	// twoDaysAgo := now.AddDate(0, 0, -2)
 
 	// Format the time in ISO 8601 format
-	twoDaysAgoStr := twoDaysAgo.Format("2006-01-02T15:04:05Z")
+	// twoDaysAgoStr := twoDaysAgo.Format("2006-01-02T15:04:05Z")
 
-	requestFilter := fmt.Sprintf("singleValueExtendedProperties/Any(ep: ep/id eq 'String 0x001A' and contains(ep/value, 'IPM.Note')) and receivedDateTime ge %s ", twoDaysAgoStr)
+	// requestFilter := fmt.Sprintf("singleValueExtendedProperties/Any(ep: ep/id eq 'String 0x001A' and contains(ep/value, 'IPM.Note')) and receivedDateTime ge %s ", twoDaysAgoStr)
+	requestFilter := "singleValueExtendedProperties/Any(ep: ep/id eq 'String 0x001A' and contains(ep/value, 'IPM.Note'))"
 
 	requestParameters := &graphusers.ItemMessagesRequestBuilderGetQueryParameters{
 		Select:  []string{"sender", "subject", "bodyPreview", "receivedDateTime"},

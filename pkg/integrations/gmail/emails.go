@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"time"
 
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/integrations"
 	"github.com/algo7/day-planner-gpt-data-portal/pkg/utils"
@@ -40,15 +39,16 @@ func GetEmails() ([]integrations.Email, error) {
 	user := "me"
 
 	// Get the current time
-	now := time.Now()
+	// now := time.Now()
 
 	// Subtract 2 days from the current time
-	twoDaysAgo := now.AddDate(0, 0, -2)
+	// twoDaysAgo := now.AddDate(0, 0, -2)
 
 	// Format the time in ISO 8601 format
-	twoDaysAgoStr := twoDaysAgo.Format("2006-01-02")
+	// twoDaysAgoStr := twoDaysAgo.Format("2006-01-02")
 
-	m, err := srv.Users.Messages.List(user).Q("is:unread").Q(fmt.Sprintf("after:%s", twoDaysAgoStr)).Do()
+	// m, err := srv.Users.Messages.List(user).Q("is:unread").Q(fmt.Sprintf("after:%s", twoDaysAgoStr)).Do()
+	m, err := srv.Users.Messages.List(user).Q("is:unread").Do()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to retrieve messages: %w", err)
 	}
