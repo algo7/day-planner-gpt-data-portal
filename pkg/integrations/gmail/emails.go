@@ -42,8 +42,8 @@ func GetEmails() ([]integrations.Email, error) {
 	// Get the current time
 	now := time.Now()
 
-	// Subtract 5 days from the current time
-	dateDiff := now.AddDate(0, 0, -5)
+	// Subtract 3 days from the current time
+	dateDiff := now.AddDate(0, 0, -3)
 
 	// Format the time in ISO 8601 format
 	dateDiffStr := dateDiff.Format("2006-01-02")
