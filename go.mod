@@ -6,7 +6,7 @@ require (
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/gofiber/contrib/swagger v1.1.1
 	github.com/gofiber/fiber/v2 v2.52.0
-	github.com/gofiber/template/html/v2 v2.1.0
+	github.com/gofiber/template/html/v2 v2.1.1
 	github.com/microsoft/kiota-abstractions-go v1.5.6
 	github.com/microsoftgraph/msgraph-sdk-go v1.33.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.0.2
@@ -40,7 +40,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.7 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-openapi/validate v0.22.1 // indirect
-	github.com/gofiber/template v1.8.2 // indirect
+	github.com/gofiber/template v1.8.3 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
