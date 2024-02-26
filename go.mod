@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/gofiber/template/html/v2 v2.1.1
 	github.com/microsoft/kiota-abstractions-go v1.5.6
-	github.com/microsoftgraph/msgraph-sdk-go v1.33.0
+	github.com/microsoftgraph/msgraph-sdk-go v1.34.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.0.2
 	github.com/redis/go-redis/v9 v9.5.0
 	github.com/stretchr/testify v1.8.4
