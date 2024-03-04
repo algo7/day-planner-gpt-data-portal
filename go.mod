@@ -11,7 +11,7 @@ require (
 	github.com/microsoftgraph/msgraph-sdk-go v1.35.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.1.0
 	github.com/redis/go-redis/v9 v9.5.1
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/oauth2 v0.17.0
 	google.golang.org/api v0.167.0
 )
