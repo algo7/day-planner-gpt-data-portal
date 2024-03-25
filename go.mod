@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/contrib/swagger v1.1.1
 	github.com/gofiber/fiber/v2 v2.52.2
 	github.com/gofiber/template/html/v2 v2.1.1
-	github.com/microsoft/kiota-abstractions-go v1.5.6
+	github.com/microsoft/kiota-abstractions-go v1.6.0
 	github.com/microsoftgraph/msgraph-sdk-go v1.36.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.1.0
 	github.com/redis/go-redis/v9 v9.5.1
@@ -64,7 +64,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/std-uritemplate/std-uritemplate/go v0.0.50 // indirect
+	github.com/std-uritemplate/std-uritemplate/go v0.0.55 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
