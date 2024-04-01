@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/gofiber/template/html/v2 v2.1.1
 	github.com/microsoft/kiota-abstractions-go v1.6.0
-	github.com/microsoftgraph/msgraph-sdk-go v1.36.0
+	github.com/microsoftgraph/msgraph-sdk-go v1.37.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.1.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.9.0
@@ -57,7 +57,7 @@ require (
 	github.com/microsoft/kiota-authentication-azure-go v1.0.2 // indirect
 	github.com/microsoft/kiota-http-go v1.3.1 // indirect
 	github.com/microsoft/kiota-serialization-form-go v1.0.0 // indirect
-	github.com/microsoft/kiota-serialization-json-go v1.0.6 // indirect
+	github.com/microsoft/kiota-serialization-json-go v1.0.7 // indirect
 	github.com/microsoft/kiota-serialization-multipart-go v1.0.0 // indirect
 	github.com/microsoft/kiota-serialization-text-go v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
