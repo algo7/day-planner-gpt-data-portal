@@ -12,7 +12,7 @@ require (
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.1.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/oauth2 v0.19.0
+	golang.org/x/oauth2 v0.20.0
 	google.golang.org/api v0.177.0
 )
 
