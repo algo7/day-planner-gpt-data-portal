@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
-	github.com/gofiber/contrib/swagger v1.1.2
+	github.com/gofiber/contrib/swagger v1.2.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/template/html/v2 v2.1.1
 	github.com/microsoft/kiota-abstractions-go v1.6.0
