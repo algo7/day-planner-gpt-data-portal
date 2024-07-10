@@ -78,8 +78,8 @@ github.com/go-openapi/validate v0.22.3 h1:KxG9mu5HBRYbecRb37KRCihvGGtND2aXziBAv0
 github.com/go-openapi/validate v0.22.3/go.mod h1:kVxh31KbfsxU8ZyoHaDbLBWU5CnMdqBUEtadQ2G4d5M=
 github.com/go-redis/redismock/v9 v9.2.0 h1:ZrMYQeKPECZPjOj5u9eyOjg8Nnb0BS9lkVIZ6IpsKLw=
 github.com/go-redis/redismock/v9 v9.2.0/go.mod h1:18KHfGDK4Y6c2R0H38EUGWAdc7ZQS9gfYxc94k7rWT0=
-github.com/gofiber/contrib/swagger v1.1.2 h1:qwyFR/yXEttI35JxAycC6KFuJu7rbhSsT1m4UkqGqis=
-github.com/gofiber/contrib/swagger v1.1.2/go.mod h1:o6hA4kifvR3xGNtAdWKNdSUGaWYtJ0Q5AWjsIHXLEWg=
+github.com/gofiber/contrib/swagger v1.2.0 h1:+tm7mBLFfUxZASQyf1zkvRkAZRZGmnIT+E0Vvj7BZo4=
+github.com/gofiber/contrib/swagger v1.2.0/go.mod h1:NRtN6G1RkdpgwFifq4nID/5cdxv410RDH9rUr9fhiqU=
 github.com/gofiber/fiber/v2 v2.52.5 h1:tWoP1MJQjGEe4GB5TUGOi7P2E0ZMMRx5ZTG4rT+yGMo=
 github.com/gofiber/fiber/v2 v2.52.5/go.mod h1:KEOE+cXMhXG0zHc9d8+E38hoX+ZN7bhOtgeF2oT6jrQ=
 github.com/gofiber/template v1.8.3 h1:hzHdvMwMo/T2kouz2pPCA0zGiLCeMnoGsQZBTSYgZxc=
