@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/contrib/swagger v1.2.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/template/html/v2 v2.1.2
-	github.com/microsoft/kiota-abstractions-go v1.6.1
+	github.com/microsoft/kiota-abstractions-go v1.7.0
 	github.com/microsoftgraph/msgraph-sdk-go v1.47.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.2.0
 	github.com/redis/go-redis/v9 v9.6.1
