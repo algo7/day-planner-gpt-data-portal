@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/template/html/v2 v2.1.2
 	github.com/microsoft/kiota-abstractions-go v1.7.0
-	github.com/microsoftgraph/msgraph-sdk-go v1.49.0
+	github.com/microsoftgraph/msgraph-sdk-go v1.51.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.2.1
 	github.com/redis/go-redis/v9 v9.6.2
 	github.com/stretchr/testify v1.9.0
@@ -20,7 +20,7 @@ require (
 	cloud.google.com/go/auth v0.9.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.15.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
