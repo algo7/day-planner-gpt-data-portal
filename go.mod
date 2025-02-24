@@ -11,7 +11,7 @@ require (
 	github.com/microsoft/kiota-abstractions-go v1.8.1
 	github.com/microsoftgraph/msgraph-sdk-go v1.58.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.2.1
-	github.com/redis/go-redis/v9 v9.7.0
+	github.com/redis/go-redis/v9 v9.7.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/oauth2 v0.25.0
 	google.golang.org/api v0.217.0
