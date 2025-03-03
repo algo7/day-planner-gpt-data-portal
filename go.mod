@@ -1,7 +1,7 @@
 module github.com/algo7/day-planner-gpt-data-portal
 
 go 1.21
-toolchain go1.22.5
+toolchain go1.23.6
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
@@ -13,7 +13,7 @@ require (
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.2.1
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.27.0
 	google.golang.org/api v0.217.0
 )
 
