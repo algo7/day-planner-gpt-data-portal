@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
-	github.com/gofiber/contrib/swagger v1.2.0
+	github.com/gofiber/contrib/swagger v1.3.0
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/template/html/v2 v2.1.3
 	github.com/microsoft/kiota-abstractions-go v1.9.1
